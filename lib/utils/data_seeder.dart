@@ -8,7 +8,7 @@ import '../database/database_helper.dart';
 /// Helper untuk mengisi database dengan data dummy realistis seorang mahasiswa.
 ///
 /// Profil: Dimas Pratama (Mahasiswa)
-/// Email: mahasiswa@duitin.id
+/// Email: ainiisolehaa4@gmail.com
 /// Password: password123
 ///
 /// Mencakup pemasukan (uang saku, beasiswa, part-time), pengeluaran harian
@@ -16,8 +16,12 @@ import '../database/database_helper.dart';
 /// serta anggaran bulanan dengan berbagai status (Aman & Waspada).
 class DataSeeder {
   static const String studentName = 'Dimas Pratama';
-  static const String studentEmail = 'mahasiswa@duitin.id';
+  static const String studentEmail = 'ainiisolehaa4@gmail.com';
   static const String studentPassword = 'password123';
+
+  /// Email akun demo versi lama, dipakai untuk migrasi otomatis agar
+  /// pengguna yang sudah punya data tidak kehilangan transaksinya.
+  static const String _legacyStudentEmail = 'mahasiswa@duitin.id';
 
   static String _hashPassword(String password) {
     final bytes = utf8.encode(password);
@@ -37,15 +41,45 @@ class DataSeeder {
   static Future<int> seedStudentData({bool forceReset = false}) async {
     final db = await DatabaseHelper.instance.database;
 
-    // Cek apakah akun mahasiswa sudah ada
-    final existingUsers = await db.query(
+    final now = DateTime.now();
+
+    // Cek apakah akun demo dengan email baru sudah ada.
+    var existingUsers = await db.query(
       'users',
       where: 'email = ?',
       whereArgs: [studentEmail.toLowerCase()],
     );
 
+    // Migrasi akun demo versi lama: ganti email & password tanpa menghapus
+    // transaksi/anggaran yang sudah dimiliki pengguna.
+    if (existingUsers.isEmpty) {
+      final legacyUsers = await db.query(
+        'users',
+        where: 'email = ?',
+        whereArgs: [_legacyStudentEmail],
+      );
+
+      if (legacyUsers.isNotEmpty) {
+        final legacyId = legacyUsers.first['id'] as int;
+        await db.update(
+          'users',
+          {
+            'email': studentEmail.toLowerCase(),
+            'password': _hashPassword(studentPassword),
+            'updated_at': now.millisecondsSinceEpoch,
+          },
+          where: 'id = ?',
+          whereArgs: [legacyId],
+        );
+        existingUsers = await db.query(
+          'users',
+          where: 'id = ?',
+          whereArgs: [legacyId],
+        );
+      }
+    }
+
     int userId;
-    final now = DateTime.now();
 
     if (existingUsers.isNotEmpty) {
       userId = existingUsers.first['id'] as int;

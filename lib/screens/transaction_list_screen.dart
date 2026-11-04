@@ -185,21 +185,6 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        title: const Text(
-          'Riwayat Transaksi',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        actions: [
-          if (_hasActiveFilter)
-            IconButton(
-              icon: const Icon(Icons.filter_alt_off_rounded),
-              tooltip: 'Reset Filter',
-              onPressed: _resetFilter,
-            ),
-        ],
-      ),
       body: Consumer<TransactionProvider>(
         builder: (context, txProvider, child) {
           final transactions = txProvider.filteredTransactions;
@@ -219,6 +204,8 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
             'Bonus',
             'Investasi',
           ]);
+          // Pastikan kategori yang sedang dipilih selalu tersedia di dropdown.
+          allCategories.add(_selectedCategory);
 
           // Hitung total dari hasil filter
           double filteredIncome = 0;
@@ -240,168 +227,248 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
             child: Column(
               children: [
                 // ── Panel Pencarian & Filter ──
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
+                // Dibatasi tingginya agar tetap bisa digulir pada layar
+                // pendek (misalnya mode landscape) tanpa overflow.
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.sizeOf(context).height * 0.6,
                   ),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surface,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
+                  child: SingleChildScrollView(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
                       ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 1. Kolom Pencarian Teks
-                      TextField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          hintText: 'Cari transaksi berdasarkan kategori atau catatan...',
-                          prefixIcon: const Icon(
-                            Icons.search_rounded,
-                            size: 20,
-                          ),
-                          suffixIcon: _searchController.text.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(
-                                    Icons.clear_rounded,
-                                    size: 18,
-                                  ),
-                                  onPressed: () {
-                                    _searchController.clear();
-                                    _applyFilter();
-                                  },
-                                )
-                              : null,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          filled: true,
-                          fillColor: theme.colorScheme.surfaceContainerHighest
-                              .withValues(alpha: 0.3),
-                        ),
-                        onChanged: (_) => _applyFilter(),
-                      ),
-                      const SizedBox(height: 10),
-
-                      // 2. Filter Jenis Transaksi (Chips)
-                      Row(
-                        children: [
-                          FilterChip(
-                            label: const Text('Semua Jenis'),
-                            selected: _selectedType == null,
-                            onSelected: (_) {
-                              setState(() => _selectedType = null);
-                              _applyFilter();
-                            },
-                          ),
-                          const SizedBox(width: 8),
-                          FilterChip(
-                            label: const Text('Pengeluaran'),
-                            avatar: Icon(
-                              Icons.arrow_upward_rounded,
-                              size: 16,
-                              color: Colors.red.shade700,
-                            ),
-                            selected: _selectedType == TransactionType.expense,
-                            selectedColor: Colors.red.withValues(alpha: 0.15),
-                            checkmarkColor: Colors.red.shade700,
-                            onSelected: (_) {
-                              setState(
-                                () => _selectedType = TransactionType.expense,
-                              );
-                              _applyFilter();
-                            },
-                          ),
-                          const SizedBox(width: 8),
-                          FilterChip(
-                            label: const Text('Pemasukan'),
-                            avatar: Icon(
-                              Icons.arrow_downward_rounded,
-                              size: 16,
-                              color: Colors.green.shade700,
-                            ),
-                            selected: _selectedType == TransactionType.income,
-                            selectedColor: Colors.green.withValues(alpha: 0.15),
-                            checkmarkColor: Colors.green.shade700,
-                            onSelected: (_) {
-                              setState(
-                                () => _selectedType = TransactionType.income,
-                              );
-                              _applyFilter();
-                            },
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.04),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
-
-                      // 3. Filter Periode Tanggal
-                      SizedBox(
-                        height: 38,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: DateFilterPreset.values.length,
-                          separatorBuilder: (_, _) => const SizedBox(width: 6),
-                          itemBuilder: (context, idx) {
-                            final preset = DateFilterPreset.values[idx];
-                            final isSelected = _selectedDatePreset == preset;
-
-                            return ChoiceChip(
-                              label: Text(
-                                preset == DateFilterPreset.custom &&
-                                        _startDate != null &&
-                                        _endDate != null
-                                    ? '${FormatHelper.formatDate(_startDate!)} - ${FormatHelper.formatDate(_endDate!)}'
-                                    : preset.label,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // 1. Kolom Pencarian Teks
+                          TextField(
+                            controller: _searchController,
+                            decoration: InputDecoration(
+                              hintText: 'Cari transaksi berdasarkan kategori atau catatan...',
+                              prefixIcon: const Icon(
+                                Icons.search_rounded,
+                                size: 20,
                               ),
-                              selected: isSelected,
-                              onSelected: (_) => _onDatePresetChanged(preset),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 8),
+                              suffixIcon: _searchController.text.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(
+                                        Icons.clear_rounded,
+                                        size: 18,
+                                      ),
+                                      onPressed: () {
+                                        _searchController.clear();
+                                        _applyFilter();
+                                      },
+                                    )
+                                  : null,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              filled: true,
+                              fillColor: theme
+                                  .colorScheme
+                                  .surfaceContainerHighest
+                                  .withValues(alpha: 0.3),
+                            ),
+                            onChanged: (_) => _applyFilter(),
+                          ),
+                          const SizedBox(height: 10),
 
-                      // 4. Filter Kategori
-                      SizedBox(
-                        height: 38,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: allCategories.length,
-                          separatorBuilder: (_, _) => const SizedBox(width: 6),
-                          itemBuilder: (context, idx) {
-                            final cat = allCategories.elementAt(idx);
-                            final isSelected = _selectedCategory == cat;
+                          // 2. Filter Jenis Transaksi (bisa digeser agar tidak
+                          //    bertumpuk pada layar sempit)
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                FilterChip(
+                                  label: const Text('Semua Jenis'),
+                                  selected: _selectedType == null,
+                                  onSelected: (_) {
+                                    setState(() => _selectedType = null);
+                                    _applyFilter();
+                                  },
+                                ),
+                                const SizedBox(width: 8),
+                                FilterChip(
+                                  label: const Text('Pengeluaran'),
+                                  avatar: Icon(
+                                    Icons.arrow_upward_rounded,
+                                    size: 16,
+                                    color: Colors.red.shade700,
+                                  ),
+                                  selected:
+                                      _selectedType == TransactionType.expense,
+                                  selectedColor: Colors.red.withValues(
+                                    alpha: 0.15,
+                                  ),
+                                  checkmarkColor: Colors.red.shade700,
+                                  onSelected: (_) {
+                                    setState(
+                                      () => _selectedType =
+                                          TransactionType.expense,
+                                    );
+                                    _applyFilter();
+                                  },
+                                ),
+                                const SizedBox(width: 8),
+                                FilterChip(
+                                  label: const Text('Pemasukan'),
+                                  avatar: Icon(
+                                    Icons.arrow_downward_rounded,
+                                    size: 16,
+                                    color: Colors.green.shade700,
+                                  ),
+                                  selected:
+                                      _selectedType == TransactionType.income,
+                                  selectedColor: Colors.green.withValues(
+                                    alpha: 0.15,
+                                  ),
+                                  checkmarkColor: Colors.green.shade700,
+                                  onSelected: (_) {
+                                    setState(
+                                      () => _selectedType =
+                                          TransactionType.income,
+                                    );
+                                    _applyFilter();
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 10),
 
-                            return ChoiceChip(
-                              label: Text(cat),
-                              avatar: cat == 'Semua'
-                                  ? null
-                                  : Icon(
-                                      FormatHelper.getCategoryIcon(cat),
-                                      size: 15,
-                                      color: FormatHelper.getCategoryColor(cat),
-                                    ),
-                              selected: isSelected,
-                              onSelected: (_) {
-                                setState(() => _selectedCategory = cat);
-                                _applyFilter();
+                          // 3. Filter Periode Tanggal
+                          SizedBox(
+                            height: 42,
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: DateFilterPreset.values.length,
+                              separatorBuilder: (_, _) =>
+                                  const SizedBox(width: 6),
+                              itemBuilder: (context, idx) {
+                                final preset = DateFilterPreset.values[idx];
+                                final isSelected =
+                                    _selectedDatePreset == preset;
+
+                                return ChoiceChip(
+                                  label: Text(
+                                    preset == DateFilterPreset.custom &&
+                                            _startDate != null &&
+                                            _endDate != null
+                                        ? '${FormatHelper.formatDate(_startDate!)} - ${FormatHelper.formatDate(_endDate!)}'
+                                        : preset.label,
+                                  ),
+                                  selected: isSelected,
+                                  onSelected: (_) =>
+                                      _onDatePresetChanged(preset),
+                                );
                               },
-                            );
-                          },
-                        ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+
+                          // 4. Filter Kategori (dropdown agar rapi & tidak
+                          //    saling bertumpuk dengan chip lainnya)
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: DropdownButtonFormField<String>(
+                                  key: ValueKey('kategori-$_selectedCategory'),
+                                  initialValue: _selectedCategory,
+                                  isExpanded: true,
+                                  decoration: InputDecoration(
+                                    labelText: 'Kategori',
+                                    prefixIcon: Icon(
+                                      _selectedCategory == 'Semua'
+                                          ? Icons.category_outlined
+                                          : FormatHelper.getCategoryIcon(
+                                              _selectedCategory,
+                                            ),
+                                      color: _selectedCategory == 'Semua'
+                                          ? null
+                                          : FormatHelper.getCategoryColor(
+                                              _selectedCategory,
+                                            ),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 12,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                    filled: true,
+                                    fillColor: theme
+                                        .colorScheme
+                                        .surfaceContainerHighest
+                                        .withValues(alpha: 0.3),
+                                  ),
+                                  items: allCategories.map((cat) {
+                                    return DropdownMenuItem<String>(
+                                      value: cat,
+                                      child: Row(
+                                        children: [
+                                          if (cat != 'Semua') ...[
+                                            Icon(
+                                              FormatHelper.getCategoryIcon(cat),
+                                              size: 16,
+                                              color:
+                                                  FormatHelper.getCategoryColor(
+                                                    cat,
+                                                  ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                          ],
+                                          Flexible(
+                                            child: Text(
+                                              cat,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }).toList(),
+                                  onChanged: (cat) {
+                                    if (cat == null) return;
+                                    setState(() => _selectedCategory = cat);
+                                    _applyFilter();
+                                  },
+                                ),
+                              ),
+                              if (_hasActiveFilter) ...[
+                                const SizedBox(width: 8),
+                                IconButton.filledTonal(
+                                  icon: const Icon(
+                                    Icons.filter_alt_off_rounded,
+                                  ),
+                                  tooltip: 'Reset Filter',
+                                  onPressed: _resetFilter,
+                                ),
+                              ],
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
 
@@ -414,44 +481,28 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                   color: theme.colorScheme.surfaceContainerHighest.withValues(
                     alpha: 0.4,
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        '${transactions.length} Transaksi',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                        ),
-                      ),
                       Row(
                         children: [
-                          Text(
-                            '+${FormatHelper.formatRupiah(filteredIncome)}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green.shade700,
+                          Expanded(
+                            child: Text(
+                              '${transactions.length} Transaksi',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '-${FormatHelper.formatRupiah(filteredExpense)}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.red.shade700,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
+                              horizontal: 8,
+                              vertical: 3,
                             ),
                             decoration: BoxDecoration(
                               color: theme.colorScheme.surface,
-                              borderRadius: BorderRadius.circular(6),
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               'Net: ${FormatHelper.formatRupiah(filteredNet)}',
@@ -462,6 +513,29 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                                     ? Colors.green.shade800
                                     : Colors.red.shade800,
                               ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 2,
+                        children: [
+                          Text(
+                            '+${FormatHelper.formatRupiah(filteredIncome)}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green.shade700,
+                            ),
+                          ),
+                          Text(
+                            '-${FormatHelper.formatRupiah(filteredExpense)}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red.shade700,
                             ),
                           ),
                         ],
@@ -582,6 +656,8 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                                         children: [
                                           Text(
                                             tx.category,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
                                             style: const TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.bold,

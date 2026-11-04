@@ -26,6 +26,14 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
 
   @override
+  void initState() {
+    super.initState();
+    // Akun demo sudah terisi otomatis agar bisa langsung menekan "Masuk".
+    _emailController.text = DataSeeder.studentEmail;
+    _passwordController.text = DataSeeder.studentPassword;
+  }
+
+  @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
@@ -66,19 +74,6 @@ class _LoginScreenState extends State<LoginScreen> {
   void _navigateToRegister() {
     Navigator.of(context)
         .push(MaterialPageRoute(builder: (_) => const RegisterScreen()));
-  }
-
-  /// Isi form login dengan akun demo bawaan aplikasi.
-  void _fillDemoAccount() {
-    _emailController.text = DataSeeder.studentEmail;
-    _passwordController.text = DataSeeder.studentPassword;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Akun demo terisi. Tekan tombol "Masuk".'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
   }
 
   @override
@@ -225,12 +220,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           );
                         },
-                      ),
-                      const SizedBox(height: 8),
-                      TextButton.icon(
-                        onPressed: _fillDemoAccount,
-                        icon: const Icon(Icons.science_outlined, size: 18),
-                        label: const Text('Gunakan Akun Demo'),
                       ),
                     ],
                   ),

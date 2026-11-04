@@ -70,14 +70,11 @@ void main() {
       SharedPreferences.setMockInitialValues({});
     });
 
-    test('1. Default theme adalah ThemeMode.system', () {
+    test('1. Default theme adalah ThemeMode.light', () {
       final provider = ThemeProvider();
-      expect(provider.themeMode, equals(ThemeMode.system));
-      expect(provider.themeModeName, equals('Sistem'));
-      expect(
-        provider.themeModeDescription,
-        contains('Mengikuti preferensi sistem'),
-      );
+      expect(provider.themeMode, equals(ThemeMode.light));
+      expect(provider.themeModeName, equals('Terang'));
+      expect(provider.themeModeDescription, contains('Tampilan cerah'));
     });
 
     test('2. setThemeMode mengubah tema ke Light dan menyimpan di SharedPreferences', () async {
@@ -178,6 +175,21 @@ void main() {
         equals('Budi Hartono'),
       );
     });
+
+    test('5. Berhasil mengubah mata uang profil', () async {
+      await authProvider.register(
+        name: 'Budi Santoso',
+        email: 'budi@example.com',
+        password: 'password123',
+        confirmPassword: 'password123',
+      );
+
+      final success = await authProvider.updateProfile(currency: 'usd');
+      expect(success, isTrue);
+      expect(authProvider.user?.currency, equals('USD'));
+      expect(authProvider.user?.name, equals('Budi Santoso'));
+      expect(fakeRepo.users[authProvider.user!.id!]?.currency, equals('USD'));
+    });
   });
 
   group('Tahap 9: ProfileScreen Widget Tests', () {
@@ -216,22 +228,37 @@ void main() {
       await tester.pumpAndSettle();
 
       // Memeriksa informasi profil
-      expect(find.text('Profil & Pengaturan'), findsOneWidget);
       expect(find.text('Ahmad Dahlan'), findsOneWidget);
       expect(find.text('ahmad@example.com'), findsOneWidget);
       expect(find.text('IDR'), findsOneWidget);
       expect(find.text('Ubah Nama'), findsOneWidget);
+      expect(find.text('Mata Uang'), findsWidgets);
     });
 
-    testWidgets('2. Menampilkan informasi aplikasi lengkap', (tester) async {
+    testWidgets('2. Menampilkan dan mengubah mata uang profil', (tester) async {
+      await authProvider.register(
+        name: 'Ahmad Dahlan',
+        email: 'ahmad@example.com',
+        password: 'password123',
+        confirmPassword: 'password123',
+      );
+
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      expect(find.text('Duitin'), findsOneWidget);
-      expect(find.text('Versi 1.0.0 (Build 1)'), findsOneWidget);
-      expect(find.text('Tim Pengembang Duitin'), findsOneWidget);
-      expect(find.text('SQLite Lokal (sqflite)'), findsOneWidget);
-      expect(find.text('Open Source (MIT)'), findsOneWidget);
+      expect(find.text('IDR'), findsOneWidget);
+
+      // Buka dialog mata uang lewat tombol "Mata Uang".
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Mata Uang'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Pilih Mata Uang'), findsOneWidget);
+
+      await tester.tap(find.text('USD'));
+      await tester.pumpAndSettle();
+
+      expect(authProvider.user?.currency, equals('USD'));
+      expect(find.text('USD'), findsOneWidget);
     });
 
     testWidgets(
@@ -250,7 +277,7 @@ void main() {
         expect(find.text('Pilih Tema Aplikasi'), findsOneWidget);
         expect(find.text('Mode Terang'), findsOneWidget);
         expect(find.text('Mode Gelap'), findsOneWidget);
-        expect(find.text('Sistem (Otomatis)'), findsOneWidget);
+        expect(find.text('Sistem (Otomatis)'), findsNothing);
 
         // Pilih Mode Gelap
         await tester.tap(find.text('Mode Gelap'));

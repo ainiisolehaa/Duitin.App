@@ -10,13 +10,8 @@ import '../widgets/balance_card.dart';
 import '../widgets/budget_summary_card.dart';
 import '../widgets/recent_transactions_list.dart';
 import '../widgets/add_budget_dialog.dart';
-import 'login_screen.dart';
 import 'transaction_form_screen.dart';
 import 'transaction_detail_screen.dart';
-import 'transaction_list_screen.dart';
-import 'statistics_screen.dart';
-import 'budget_screen.dart';
-import 'profile_screen.dart';
 
 /// Dashboard Keuangan Utama (Home Screen).
 ///
@@ -28,7 +23,10 @@ import 'profile_screen.dart';
 /// Semua data terhubung langsung ke SQLite dan dihitung dinamis
 /// untuk user yang sedang login. Perubahan data langsung memperbarui tampilan.
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  /// Callback untuk berpindah tab lewat bottom navigation.
+  final void Function(int index)? onNavigateTab;
+
+  const HomeScreen({super.key, this.onNavigateTab});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -55,38 +53,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _handleLogout() async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Apakah kamu yakin ingin keluar dari Duitin?'),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Batal'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Keluar'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm != true || !mounted) return;
-
-    await context.read<AuthProvider>().logout();
-
-    if (!mounted) return;
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
-      (route) => false,
-    );
-  }
-
   Future<void> _openAddTransaction(int userId) async {
     final result = await Navigator.push<bool>(
       context,
@@ -108,34 +74,6 @@ class _HomeScreenState extends State<HomeScreen> {
     if (result == true && mounted) {
       await _loadData();
     }
-  }
-
-  void _openTransactionList(int userId) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => TransactionListScreen(userId: userId)),
-    );
-  }
-
-  void _openStatistics(int userId) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => StatisticsScreen(userId: userId)),
-    );
-  }
-
-  void _openBudgetScreen(int userId) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => BudgetScreen(userId: userId)),
-    );
-  }
-
-  void _openProfile() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const ProfileScreen()),
-    );
   }
 
   void _openAddBudget(int userId) {
@@ -180,104 +118,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final auth = context.watch<AuthProvider>();
-    final user = auth.user;
-    final userId = user?.id ?? 0;
+    final userId = context.watch<AuthProvider>().userId ?? 0;
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        title: InkWell(
-          borderRadius: BorderRadius.circular(20),
-          onTap: _openProfile,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircleAvatar(
-                  radius: 18,
-                  backgroundColor: theme.colorScheme.primaryContainer,
-                  child: Text(
-                    user?.name.isNotEmpty == true
-                        ? user!.name[0].toUpperCase()
-                        : 'U',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onPrimaryContainer,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    'Halo, ${user?.name ?? 'Pengguna'}!',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.savings_rounded),
-            tooltip: 'Anggaran Bulanan',
-            onPressed: () => _openBudgetScreen(userId),
-          ),
-          IconButton(
-            icon: const Icon(Icons.bar_chart_rounded),
-            tooltip: 'Statistik Keuangan',
-            onPressed: () => _openStatistics(userId),
-          ),
-          IconButton(
-            icon: const Icon(Icons.receipt_long_rounded),
-            tooltip: 'Semua Transaksi',
-            onPressed: () => _openTransactionList(userId),
-          ),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert_rounded),
-            tooltip: 'Menu Lainnya',
-            onSelected: (value) {
-              if (value == 'profile') {
-                _openProfile();
-              } else if (value == 'logout') {
-                _handleLogout();
-              }
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'profile',
-                child: Row(
-                  children: [
-                    Icon(Icons.person_outline_rounded, size: 20),
-                    SizedBox(width: 10),
-                    Text('Profil & Pengaturan'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'logout',
-                child: Row(
-                  children: [
-                    Icon(Icons.logout_rounded, color: Colors.red, size: 20),
-                    SizedBox(width: 10),
-                    Text('Keluar Akun', style: TextStyle(color: Colors.red)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
       body: Consumer2<TransactionProvider, BudgetProvider>(
         builder: (context, txProvider, budgetProvider, child) {
           return RefreshIndicator(
@@ -303,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     totalBudget: budgetProvider.totalBudget,
                     expenseSummary: txProvider.expenseSummary,
                     onAddBudget: () => _openAddBudget(userId),
-                    onViewDetails: () => _openBudgetScreen(userId),
+                    onViewDetails: () => widget.onNavigateTab?.call(3),
                   ),
                   const SizedBox(height: 22),
 
@@ -313,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onDelete: (tx) => _handleDeleteTransaction(tx, userId),
                     onDetailTap: (tx) => _openTransactionDetail(tx, userId),
                     onAddTransaction: () => _openAddTransaction(userId),
-                    onViewAll: () => _openTransactionList(userId),
+                    onViewAll: () => widget.onNavigateTab?.call(1),
                   ),
                   const SizedBox(
                     height: 90,

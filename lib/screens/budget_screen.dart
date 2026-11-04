@@ -106,13 +106,6 @@ class _BudgetScreenState extends State<BudgetScreen> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        title: const Text(
-          'Anggaran Bulanan',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
       body: Consumer<BudgetProvider>(
         builder: (context, budgetProvider, child) {
           final month = budgetProvider.selectedMonth;

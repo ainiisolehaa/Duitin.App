@@ -6,14 +6,13 @@ import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
 import 'login_screen.dart';
 
-/// Halaman Profil dan Pengaturan Aplikasi Duitin (Tahap 9).
+/// Halaman Profil dan Pengaturan Aplikasi Duitin.
 ///
 /// Menampilkan:
 /// 1. Informasi pengguna (Nama, Email, Avatar, Tanggal Bergabung).
-/// 2. Fitur pengubahan nama dengan validasi input.
-/// 3. Preferensi tema aplikasi (Sistem, Terang, Gelap).
-/// 4. Informasi aplikasi (Versi, Pengembang, Deskripsi, Fitur).
-/// 5. Logout dengan dialog konfirmasi dan pembersihan sesi.
+/// 2. Fitur pengubahan nama dan mata uang.
+/// 3. Preferensi tema aplikasi (Terang atau Gelap).
+/// 4. Logout dengan dialog konfirmasi dan pembersihan sesi.
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -22,6 +21,16 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  /// Daftar mata uang yang bisa dipilih pengguna.
+  static const List<Map<String, String>> _currencyOptions = [
+    {'code': 'IDR', 'label': 'Rupiah Indonesia'},
+    {'code': 'USD', 'label': 'Dolar Amerika Serikat'},
+    {'code': 'EUR', 'label': 'Euro'},
+    {'code': 'SGD', 'label': 'Dolar Singapura'},
+    {'code': 'MYR', 'label': 'Ringgit Malaysia'},
+    {'code': 'JPY', 'label': 'Yen Jepang'},
+  ];
+
   Future<void> _showEditNameDialog(String currentName) async {
     final nameController = TextEditingController(text: currentName);
     final formKey = GlobalKey<FormState>();
@@ -125,6 +134,104 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<void> _showEditCurrencyDialog() async {
+    final auth = context.read<AuthProvider>();
+    final currentCurrency = auth.user?.currency ?? 'IDR';
+
+    final selected = await showDialog<String>(
+      context: context,
+      builder: (ctx) {
+        final theme = Theme.of(ctx);
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.monetization_on_outlined, size: 22),
+              SizedBox(width: 8),
+              Text('Pilih Mata Uang'),
+            ],
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView(
+              shrinkWrap: true,
+              children: _currencyOptions.map((option) {
+                final code = option['code']!;
+                final isSelected = code == currentCurrency;
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: CircleAvatar(
+                    radius: 18,
+                    backgroundColor: isSelected
+                        ? theme.colorScheme.primaryContainer
+                        : theme.colorScheme.surfaceContainerHighest,
+                    child: Text(
+                      code.substring(0, 1),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: isSelected
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    code,
+                    style: TextStyle(
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      color: isSelected ? theme.colorScheme.primary : null,
+                    ),
+                  ),
+                  subtitle: Text(
+                    option['label']!,
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  trailing: isSelected
+                      ? Icon(
+                          Icons.check_circle_rounded,
+                          color: theme.colorScheme.primary,
+                        )
+                      : null,
+                  onTap: () => Navigator.pop(ctx, code),
+                );
+              }).toList(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Batal'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (selected == null || selected == currentCurrency || !mounted) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    final success = await auth.updateProfile(currency: selected);
+
+    if (!mounted) return;
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          success
+              ? 'Mata uang berhasil diubah menjadi $selected'
+              : auth.errorMessage ?? 'Gagal mengubah mata uang.',
+        ),
+        backgroundColor: success ? Colors.teal : Colors.red,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+  }
+
   Future<void> _showThemeSelectionDialog() async {
     final themeProvider = context.read<ThemeProvider>();
     final currentMode = themeProvider.themeMode;
@@ -147,19 +254,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildThemeOptionTile(
-                title: 'Sistem (Otomatis)',
-                subtitle: 'Mengikuti tema perangkat',
-                icon: Icons.brightness_auto_rounded,
-                mode: ThemeMode.system,
-                currentMode: currentMode,
-                theme: theme,
-                onTap: () {
-                  themeProvider.setThemeMode(ThemeMode.system);
-                  Navigator.pop(ctx);
-                },
-              ),
-              const Divider(height: 1),
               _buildThemeOptionTile(
                 title: 'Mode Terang',
                 subtitle: 'Tampilan cerah',
@@ -294,7 +388,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(title: const Text('Profil & Pengaturan'), elevation: 0),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         children: [
@@ -350,6 +443,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         value: user?.currency ?? 'IDR',
                         icon: Icons.monetization_on_outlined,
                         theme: theme,
+                        onTap: _showEditCurrencyDialog,
                       ),
                       _buildInfoColumn(
                         label: 'Bergabung',
@@ -360,16 +454,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  OutlinedButton.icon(
-                    onPressed: () => _showEditNameDialog(user?.name ?? ''),
-                    icon: const Icon(Icons.edit_rounded, size: 18),
-                    label: const Text('Ubah Nama'),
-                    style: OutlinedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () =>
+                              _showEditNameDialog(user?.name ?? ''),
+                          icon: const Icon(Icons.edit_rounded, size: 18),
+                          label: const Text('Ubah Nama'),
+                          style: OutlinedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            minimumSize: const Size.fromHeight(42),
+                          ),
+                        ),
                       ),
-                      minimumSize: const Size.fromHeight(42),
-                    ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: _showEditCurrencyDialog,
+                          icon: const Icon(
+                            Icons.monetization_on_outlined,
+                            size: 18,
+                          ),
+                          label: const Text('Mata Uang'),
+                          style: OutlinedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            minimumSize: const Size.fromHeight(42),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -416,80 +534,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           const SizedBox(height: 20),
 
-          // ──────────── 3. INFORMASI APLIKASI ────────────
-          Text(
-            'Tentang Aplikasi',
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.primary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Card(
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(color: theme.colorScheme.outlineVariant),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(
-                          Icons.account_balance_wallet_rounded,
-                          color: theme.colorScheme.primary,
-                          size: 28,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Duitin',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            'Versi 1.0.0 (Build 1)',
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Duitin adalah aplikasi pencatatan keuangan pribadi cerdas yang dirancang untuk membantu mahasiswa dan pengguna umum mengelola pemasukan, pengeluaran, anggaran bulanan, dan visualisasi grafik secara aman dengan penyimpanan SQLite lokal.',
-                    style: TextStyle(fontSize: 13, height: 1.4),
-                  ),
-                  const SizedBox(height: 14),
-                  const Divider(),
-                  const SizedBox(height: 8),
-                  _buildAboutRow('Pengembang', 'Tim Pengembang Duitin'),
-                  const SizedBox(height: 6),
-                  _buildAboutRow('Penyimpanan', 'SQLite Lokal (sqflite)'),
-                  const SizedBox(height: 6),
-                  _buildAboutRow('Lisensi', 'Open Source (MIT)'),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 20),
-
-          // ──────────── 4. AKUN & KELUAR ────────────
+          // ──────────── 3. AKUN & KELUAR ────────────
           Text(
             'Akun & Sesi',
             style: theme.textTheme.titleSmall?.copyWith(
@@ -544,36 +589,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String value,
     required IconData icon,
     required ThemeData theme,
+    VoidCallback? onTap,
   }) {
-    return Column(
-      children: [
-        Icon(icon, size: 20, color: theme.colorScheme.primary),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+    final content = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: Column(
+        children: [
+          Icon(icon, size: 20, color: theme.colorScheme.primary),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                value,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
+              if (onTap != null) ...[
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.edit_rounded,
+                  size: 12,
+                  color: theme.colorScheme.primary,
+                ),
+              ],
+            ],
           ),
-        ),
-      ],
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
+          ),
+        ],
+      ),
     );
-  }
 
-  Widget _buildAboutRow(String title, String desc) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(title, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-        Text(
-          desc,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-        ),
-      ],
+    if (onTap == null) return content;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: content,
     );
   }
 }

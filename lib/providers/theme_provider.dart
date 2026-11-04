@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Provider untuk mengelola preferensi tema aplikasi (Light, Dark, System).
+/// Provider untuk mengelola preferensi tema aplikasi (Terang & Gelap).
 ///
 /// Preferensi tema disimpan di [SharedPreferences] sehingga pilihan
 /// pengguna tetap tersimpan setelah aplikasi ditutup.
 class ThemeProvider extends ChangeNotifier {
   static const String _keyThemeMode = 'app_theme_mode';
 
-  ThemeMode _themeMode = ThemeMode.system;
+  ThemeMode _themeMode = ThemeMode.light;
   bool _isLoaded = false;
 
   ThemeMode get themeMode => _themeMode;
@@ -61,10 +61,11 @@ class ThemeProvider extends ChangeNotifier {
       } else if (savedMode == 'dark') {
         _themeMode = ThemeMode.dark;
       } else {
-        _themeMode = ThemeMode.system;
+        // Default (termasuk sisa preferensi "system" versi lama) = terang.
+        _themeMode = ThemeMode.light;
       }
     } catch (_) {
-      _themeMode = ThemeMode.system;
+      _themeMode = ThemeMode.light;
     } finally {
       _isLoaded = true;
       notifyListeners();
@@ -73,8 +74,6 @@ class ThemeProvider extends ChangeNotifier {
 
   /// Ubah preferensi tema dan simpan ke SharedPreferences.
   Future<void> setThemeMode(ThemeMode mode) async {
-    if (_themeMode == mode) return;
-
     _themeMode = mode;
     notifyListeners();
 

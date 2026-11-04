@@ -156,22 +156,41 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Update profil pengguna (nama pengguna).
-  Future<bool> updateProfile({required String name}) async {
+  /// Update profil pengguna (nama dan/atau mata uang).
+  ///
+  /// Parameter yang tidak diisi akan mempertahankan nilai lama.
+  Future<bool> updateProfile({String? name, String? currency}) async {
     if (_user == null) {
       _errorMessage = 'Tidak ada pengguna yang sedang login.';
       notifyListeners();
       return false;
     }
 
-    final trimmedName = name.trim();
-    if (trimmedName.isEmpty) {
-      _errorMessage = 'Nama tidak boleh kosong.';
+    String? trimmedName;
+    if (name != null) {
+      trimmedName = name.trim();
+      if (trimmedName.isEmpty) {
+        _errorMessage = 'Nama tidak boleh kosong.';
+        notifyListeners();
+        return false;
+      }
+      if (trimmedName.length < 2) {
+        _errorMessage = 'Nama minimal 2 karakter.';
+        notifyListeners();
+        return false;
+      }
+    }
+
+    final trimmedCurrency = currency?.trim().toUpperCase();
+    if (currency != null &&
+        (trimmedCurrency == null || trimmedCurrency.isEmpty)) {
+      _errorMessage = 'Mata uang tidak boleh kosong.';
       notifyListeners();
       return false;
     }
-    if (trimmedName.length < 2) {
-      _errorMessage = 'Nama minimal 2 karakter.';
+
+    if (trimmedName == null && trimmedCurrency == null) {
+      _errorMessage = 'Tidak ada perubahan yang disimpan.';
       notifyListeners();
       return false;
     }
@@ -182,6 +201,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       final updatedUser = _user!.copyWith(
         name: trimmedName,
+        currency: trimmedCurrency,
         updatedAt: DateTime.now(),
       );
       final success = await _repository.updateUser(updatedUser);

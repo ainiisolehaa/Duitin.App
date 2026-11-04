@@ -18,7 +18,7 @@ Aplikasi ini **sepenuhnya offline** — tidak membutuhkan backend atau koneksi i
 | 🔎 **Riwayat & Filter** | Pencarian teks, filter jenis transaksi, filter kategori, dan filter periode (hari ini, minggu ini, bulan ini, rentang kustom) |
 | 📊 **Statistik** | Grafik batang pemasukan vs pengeluaran dan grafik lingkaran pengeluaran per kategori, dengan periode mingguan/bulanan |
 | 🎯 **Anggaran Bulanan** | Batas anggaran per kategori, progress bar, sisa anggaran, serta peringatan otomatis **Aman / Mendekati Batas / Melewati Batas** |
-| 👤 **Profil** | Ubah nama dengan validasi, pilih tema terang/gelap/sistem, dan logout |
+| 👤 **Profil** | Ubah nama, ganti mata uang, pilih tema terang/gelap, dan logout |
 | 📱 **Responsif** | Layout tetap rapi saat orientasi portrait maupun landscape |
 
 ---
@@ -145,11 +145,11 @@ flutter run
 Saat aplikasi pertama kali dijalankan, data demo akan otomatis dibuat:
 
 ```text
-Email    : mahasiswa@duitin.id
+Email    : ainiisolehaa4@gmail.com
 Password : password123
 ```
 
-Di halaman login juga tersedia tombol **“Gunakan Akun Demo”** untuk mengisi form secara otomatis.
+Form login sudah terisi otomatis dengan akun demo ini, jadi cukup tekan **“Masuk”**.
 
 Data demo mencakup:
 - 1 akun mahasiswa

@@ -176,10 +176,6 @@ class _AddBudgetDialogState extends State<AddBudgetDialog> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
-                prefixIcon: Icon(
-                  FormatHelper.getCategoryIcon(_selectedCategory),
-                  color: FormatHelper.getCategoryColor(_selectedCategory),
-                ),
               ),
               items: _categories.map((cat) {
                 return DropdownMenuItem(

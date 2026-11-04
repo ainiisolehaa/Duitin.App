@@ -52,13 +52,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        title: const Text(
-          'Statistik Keuangan',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
       body: Consumer<StatisticsProvider>(
         builder: (context, statProvider, child) {
           return RefreshIndicator(
