@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../providers/auth_provider.dart';
 import 'login_screen.dart';
 
@@ -65,7 +66,8 @@ class _SplashScreenState extends State<SplashScreen>
     // Sesuai permintaan: setelah splash screen selalu tampilkan halaman login & register
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const LoginScreen(),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const LoginScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
         },
@@ -157,4 +159,3 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 }
-

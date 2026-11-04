@@ -99,9 +99,7 @@ class DatabaseHelper {
     await db.execute(
       'CREATE INDEX idx_transactions_type ON transactions (type)',
     );
-    await db.execute(
-      'CREATE INDEX idx_budgets_user_id ON budgets (user_id)',
-    );
+    await db.execute('CREATE INDEX idx_budgets_user_id ON budgets (user_id)');
     await db.execute(
       'CREATE UNIQUE INDEX idx_budgets_unique '
       'ON budgets (user_id, category, month, year)',

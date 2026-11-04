@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../models/transaction.dart';
 import '../repositories/transaction_repository.dart';
 
@@ -20,12 +21,13 @@ class TransactionProvider extends ChangeNotifier {
   String? _errorMessage;
 
   TransactionProvider({TransactionRepository? repository})
-      : _repository = repository ?? TransactionRepository();
+    : _repository = repository ?? TransactionRepository();
 
   // ──────────── GETTERS ────────────
 
   List<Transaction> get transactions => List.unmodifiable(_transactions);
-  List<Transaction> get filteredTransactions => List.unmodifiable(_filteredTransactions);
+  List<Transaction> get filteredTransactions =>
+      List.unmodifiable(_filteredTransactions);
   List<String> get userCategories => List.unmodifiable(_userCategories);
 
   /// Transaksi terbaru (maksimal 5 transaksi teratas).
@@ -120,7 +122,9 @@ class TransactionProvider extends ChangeNotifier {
   }
 
   /// Tambah transaksi baru dan langsung perbarui state dashboard.
-  Future<void> addTransaction({
+  ///
+  /// Mengembalikan `true` jika transaksi berhasil disimpan.
+  Future<bool> addTransaction({
     required int userId,
     required String category,
     required double amount,
@@ -141,34 +145,47 @@ class TransactionProvider extends ChangeNotifier {
       await _repository.insertTransaction(transaction);
       _errorMessage = null;
       await loadDashboardData(userId);
+      return true;
     } catch (e) {
       _errorMessage = 'Gagal menambah transaksi: $e';
+      return false;
+    } finally {
       _setLoading(false);
     }
   }
 
   /// Update transaksi yang sudah ada dan langsung perbarui state dashboard.
-  Future<void> updateTransaction(Transaction transaction) async {
+  ///
+  /// Mengembalikan `true` jika transaksi berhasil diperbarui.
+  Future<bool> updateTransaction(Transaction transaction) async {
     _setLoading(true);
     try {
       await _repository.updateTransaction(transaction);
       _errorMessage = null;
       await loadDashboardData(transaction.userId);
+      return true;
     } catch (e) {
       _errorMessage = 'Gagal update transaksi: $e';
+      return false;
+    } finally {
       _setLoading(false);
     }
   }
 
   /// Hapus transaksi berdasarkan ID dan langsung perbarui state dashboard.
-  Future<void> deleteTransaction(int id, int userId) async {
+  ///
+  /// Mengembalikan `true` jika transaksi berhasil dihapus.
+  Future<bool> deleteTransaction(int id, int userId) async {
     _setLoading(true);
     try {
       await _repository.deleteTransaction(id);
       _errorMessage = null;
       await loadDashboardData(userId);
+      return true;
     } catch (e) {
       _errorMessage = 'Gagal menghapus transaksi: $e';
+      return false;
+    } finally {
       _setLoading(false);
     }
   }

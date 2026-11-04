@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+
 import '../models/statistic_data.dart';
 import '../utils/format_helper.dart';
 
@@ -98,7 +99,9 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
                               _touchedIndex = -1;
                               return;
                             }
-                            _touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                            _touchedIndex = pieTouchResponse
+                                .touchedSection!
+                                .touchedSectionIndex;
                           });
                         },
                       ),
@@ -116,8 +119,8 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
                           title: isTouched
                               ? '${stat.percentage.toStringAsFixed(1)}%'
                               : stat.percentage >= 10
-                                  ? '${stat.percentage.toStringAsFixed(0)}%'
-                                  : '',
+                              ? '${stat.percentage.toStringAsFixed(0)}%'
+                              : '',
                           radius: radius,
                           titleStyle: const TextStyle(
                             fontSize: 12,
@@ -135,7 +138,9 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
                         'Total',
                         style: TextStyle(
                           fontSize: 11,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.6,
+                          ),
                         ),
                       ),
                       Text(
@@ -170,7 +175,10 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
                   },
                   borderRadius: BorderRadius.circular(10),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 4,
+                      horizontal: 6,
+                    ),
                     child: Row(
                       children: [
                         Container(
@@ -193,7 +201,9 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
                             stat.category,
                             style: TextStyle(
                               fontSize: 13,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.w500,
                             ),
                           ),
                         ),
@@ -211,7 +221,9 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
                               '${stat.percentage.toStringAsFixed(1)}%',
                               style: TextStyle(
                                 fontSize: 11,
-                                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                                color: theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.6,
+                                ),
                               ),
                             ),
                           ],
@@ -228,4 +240,3 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
     );
   }
 }
-

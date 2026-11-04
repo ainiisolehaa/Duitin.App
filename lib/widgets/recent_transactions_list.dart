@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../models/transaction.dart';
 import '../utils/format_helper.dart';
 
@@ -68,11 +69,17 @@ class RecentTransactionsList extends StatelessWidget {
                     onPressed: onViewAll,
                     style: TextButton.styleFrom(
                       visualDensity: VisualDensity.compact,
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                     ),
                     child: const Text(
                       'Lihat Semua',
-                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
@@ -85,7 +92,10 @@ class RecentTransactionsList extends StatelessWidget {
                   ),
                   style: TextButton.styleFrom(
                     visualDensity: VisualDensity.compact,
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                   ),
                 ),
               ],
@@ -99,7 +109,9 @@ class RecentTransactionsList extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.25),
+              color: theme.colorScheme.surfaceContainerHighest.withValues(
+                alpha: 0.25,
+              ),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
@@ -115,10 +127,7 @@ class RecentTransactionsList extends StatelessWidget {
                 const SizedBox(height: 10),
                 const Text(
                   'Belum ada transaksi',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -179,7 +188,9 @@ class RecentTransactionsList extends StatelessWidget {
                         ),
                         FilledButton(
                           onPressed: () => Navigator.pop(ctx, true),
-                          style: FilledButton.styleFrom(backgroundColor: Colors.red),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Colors.red,
+                          ),
                           child: const Text('Hapus'),
                         ),
                       ],
@@ -193,12 +204,17 @@ class RecentTransactionsList extends StatelessWidget {
                     onTap: () => onDetailTap(tx),
                     borderRadius: BorderRadius.circular(16),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surface,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
+                          color: theme.colorScheme.outlineVariant.withValues(
+                            alpha: 0.4,
+                          ),
                         ),
                       ),
                       child: Row(
@@ -239,7 +255,8 @@ class RecentTransactionsList extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                                    color: theme.colorScheme.onSurface
+                                        .withValues(alpha: 0.6),
                                   ),
                                 ),
                               ],
@@ -255,7 +272,9 @@ class RecentTransactionsList extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: isIncome ? Colors.green.shade700 : Colors.red.shade700,
+                                  color: isIncome
+                                      ? Colors.green.shade700
+                                      : Colors.red.shade700,
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -264,7 +283,9 @@ class RecentTransactionsList extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w500,
-                                  color: isIncome ? Colors.green.shade600 : Colors.red.shade600,
+                                  color: isIncome
+                                      ? Colors.green.shade600
+                                      : Colors.red.shade600,
                                 ),
                               ),
                             ],

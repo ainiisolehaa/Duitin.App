@@ -1,7 +1,7 @@
 /// Tipe transaksi: pemasukan atau pengeluaran.
 enum TransactionType {
-  income,   // Pemasukan
-  expense,  // Pengeluaran
+  income, // Pemasukan
+  expense, // Pengeluaran
 }
 
 /// Model Transaction — mencatat setiap pemasukan/pengeluaran.
@@ -29,8 +29,8 @@ class Transaction {
     this.note,
     DateTime? createdAt,
     DateTime? updatedAt,
-  })  : createdAt = createdAt ?? DateTime.now(),
-        updatedAt = updatedAt ?? DateTime.now();
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   /// Konversi dari Map (hasil query SQLite) ke objek Transaction.
   factory Transaction.fromMap(Map<String, dynamic> map) {
@@ -108,4 +108,3 @@ class Transaction {
   @override
   int get hashCode => id.hashCode;
 }
-

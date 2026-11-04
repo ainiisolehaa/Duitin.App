@@ -20,8 +20,8 @@ class User {
     this.currency = 'IDR',
     DateTime? createdAt,
     DateTime? updatedAt,
-  })  : createdAt = createdAt ?? DateTime.now(),
-        updatedAt = updatedAt ?? DateTime.now();
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   /// Konversi dari Map (hasil query SQLite) ke objek User.
   factory User.fromMap(Map<String, dynamic> map) {

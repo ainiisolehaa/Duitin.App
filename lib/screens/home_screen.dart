@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../models/transaction.dart';
 import '../providers/auth_provider.dart';
 import '../providers/transaction_provider.dart';
@@ -89,9 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _openAddTransaction(int userId) async {
     final result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(
-        builder: (_) => TransactionFormScreen(userId: userId),
-      ),
+      MaterialPageRoute(builder: (_) => TransactionFormScreen(userId: userId)),
     );
     if (result == true && mounted) {
       await _loadData();
@@ -102,7 +101,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (_) => TransactionDetailScreen(transaction: tx, userId: userId),
+        builder: (_) =>
+            TransactionDetailScreen(transaction: tx, userId: userId),
       ),
     );
     if (result == true && mounted) {
@@ -113,36 +113,28 @@ class _HomeScreenState extends State<HomeScreen> {
   void _openTransactionList(int userId) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => TransactionListScreen(userId: userId),
-      ),
+      MaterialPageRoute(builder: (_) => TransactionListScreen(userId: userId)),
     );
   }
 
   void _openStatistics(int userId) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => StatisticsScreen(userId: userId),
-      ),
+      MaterialPageRoute(builder: (_) => StatisticsScreen(userId: userId)),
     );
   }
 
   void _openBudgetScreen(int userId) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => BudgetScreen(userId: userId),
-      ),
+      MaterialPageRoute(builder: (_) => BudgetScreen(userId: userId)),
     );
   }
 
   void _openProfile() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => const ProfileScreen(),
-      ),
+      MaterialPageRoute(builder: (_) => const ProfileScreen()),
     );
   }
 
@@ -155,7 +147,24 @@ class _HomeScreenState extends State<HomeScreen> {
     final txProvider = context.read<TransactionProvider>();
     final budgetProvider = context.read<BudgetProvider>();
 
-    await txProvider.deleteTransaction(tx.id!, userId);
+    final success = await txProvider.deleteTransaction(tx.id!, userId);
+    if (!success) {
+      if (!mounted) return;
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            txProvider.errorMessage ?? 'Transaksi gagal dihapus. Coba lagi.',
+          ),
+          backgroundColor: Colors.red.shade700,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+      return;
+    }
+
     await budgetProvider.loadCurrentMonthBudgets(userId);
 
     if (!mounted) return;
@@ -192,7 +201,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   radius: 18,
                   backgroundColor: theme.colorScheme.primaryContainer,
                   child: Text(
-                    user?.name.isNotEmpty == true ? user!.name[0].toUpperCase() : 'U',
+                    user?.name.isNotEmpty == true
+                        ? user!.name[0].toUpperCase()
+                        : 'U',
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -304,7 +315,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     onAddTransaction: () => _openAddTransaction(userId),
                     onViewAll: () => _openTransactionList(userId),
                   ),
-                  const SizedBox(height: 90), // Ruang ekstra untuk floating button
+                  const SizedBox(
+                    height: 90,
+                  ), // Ruang ekstra untuk floating button
                 ],
               ),
             ),

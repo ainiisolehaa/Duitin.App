@@ -98,4 +98,3 @@ class ThemeProvider extends ChangeNotifier {
     }
   }
 }
-

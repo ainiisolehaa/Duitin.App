@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../models/budget.dart';
 import '../models/budget_detail.dart';
 import '../repositories/budget_repository.dart';
@@ -29,8 +30,8 @@ class BudgetProvider extends ChangeNotifier {
   BudgetProvider({
     BudgetRepository? repository,
     TransactionRepository? txRepository,
-  })  : _repository = repository ?? BudgetRepository(),
-        _txRepository = txRepository ?? TransactionRepository();
+  }) : _repository = repository ?? BudgetRepository(),
+       _txRepository = txRepository ?? TransactionRepository();
 
   // ──────────── GETTERS ────────────
 
@@ -46,7 +47,8 @@ class BudgetProvider extends ChangeNotifier {
   double get progressRatio => (usagePercentage / 100.0).clamp(0.0, 1.0);
 
   bool get isNearLimit => usagePercentage >= 80.0 && usagePercentage < 100.0;
-  bool get isOverBudget => _totalBudget > 0 && _totalActualExpense >= _totalBudget;
+  bool get isOverBudget =>
+      _totalBudget > 0 && _totalActualExpense >= _totalBudget;
 
   BudgetStatus get overallStatus {
     if (isOverBudget) return BudgetStatus.danger;
@@ -135,7 +137,9 @@ class BudgetProvider extends ChangeNotifier {
   }
 
   /// Tambah atau update batas anggaran kategori tertentu.
-  Future<void> setBudget({
+  ///
+  /// Mengembalikan `true` jika anggaran berhasil disimpan.
+  Future<bool> setBudget({
     required int userId,
     required String category,
     required double amount,
@@ -154,8 +158,11 @@ class BudgetProvider extends ChangeNotifier {
       await _repository.insertBudget(budget);
       _errorMessage = null;
       await loadBudgets(userId: userId, month: month, year: year);
+      return true;
     } catch (e) {
       _errorMessage = 'Gagal menyimpan budget: $e';
+      return false;
+    } finally {
       _setLoading(false);
     }
   }
@@ -178,7 +185,10 @@ class BudgetProvider extends ChangeNotifier {
   }
 
   /// Hapus budget berdasarkan ID.
-  Future<void> deleteBudget(int id, {
+  ///
+  /// Mengembalikan `true` jika anggaran berhasil dihapus.
+  Future<bool> deleteBudget(
+    int id, {
     required int userId,
     required int month,
     required int year,
@@ -188,8 +198,11 @@ class BudgetProvider extends ChangeNotifier {
       await _repository.deleteBudget(id);
       _errorMessage = null;
       await loadBudgets(userId: userId, month: month, year: year);
+      return true;
     } catch (e) {
       _errorMessage = 'Gagal menghapus budget: $e';
+      return false;
+    } finally {
       _setLoading(false);
     }
   }

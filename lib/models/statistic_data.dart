@@ -40,4 +40,3 @@ class CategoryStat {
     required this.color,
   });
 }
-

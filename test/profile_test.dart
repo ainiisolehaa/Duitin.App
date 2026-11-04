@@ -74,7 +74,10 @@ void main() {
       final provider = ThemeProvider();
       expect(provider.themeMode, equals(ThemeMode.system));
       expect(provider.themeModeName, equals('Sistem'));
-      expect(provider.themeModeDescription, contains('Mengikuti preferensi sistem'));
+      expect(
+        provider.themeModeDescription,
+        contains('Mengikuti preferensi sistem'),
+      );
     });
 
     test('2. setThemeMode mengubah tema ke Light dan menyimpan di SharedPreferences', () async {
@@ -101,14 +104,17 @@ void main() {
       expect(prefs.getString('app_theme_mode'), equals('dark'));
     });
 
-    test('4. loadThemeMode mengembalikan tema tersimpan dari SharedPreferences', () async {
-      SharedPreferences.setMockInitialValues({'app_theme_mode': 'dark'});
-      final provider = ThemeProvider();
-      await provider.loadThemeMode();
+    test(
+      '4. loadThemeMode mengembalikan tema tersimpan dari SharedPreferences',
+      () async {
+        SharedPreferences.setMockInitialValues({'app_theme_mode': 'dark'});
+        final provider = ThemeProvider();
+        await provider.loadThemeMode();
 
-      expect(provider.themeMode, equals(ThemeMode.dark));
-      expect(provider.isLoaded, isTrue);
-    });
+        expect(provider.themeMode, equals(ThemeMode.dark));
+        expect(provider.isLoaded, isTrue);
+      },
+    );
   });
 
   group('Tahap 9: AuthProvider Profile Updating Tests', () {
@@ -140,18 +146,21 @@ void main() {
       expect(authProvider.errorMessage, equals('Nama tidak boleh kosong.'));
     });
 
-    test('3. Validasi: Nama kurang dari 2 karakter menghasilkan error', () async {
-      await authProvider.register(
-        name: 'Budi Santoso',
-        email: 'budi@example.com',
-        password: 'password123',
-        confirmPassword: 'password123',
-      );
+    test(
+      '3. Validasi: Nama kurang dari 2 karakter menghasilkan error',
+      () async {
+        await authProvider.register(
+          name: 'Budi Santoso',
+          email: 'budi@example.com',
+          password: 'password123',
+          confirmPassword: 'password123',
+        );
 
-      final success = await authProvider.updateProfile(name: 'A');
-      expect(success, isFalse);
-      expect(authProvider.errorMessage, equals('Nama minimal 2 karakter.'));
-    });
+        final success = await authProvider.updateProfile(name: 'A');
+        expect(success, isFalse);
+        expect(authProvider.errorMessage, equals('Nama minimal 2 karakter.'));
+      },
+    );
 
     test('4. Berhasil mengubah nama profil dan memperbarui state', () async {
       await authProvider.register(
@@ -164,7 +173,10 @@ void main() {
       final success = await authProvider.updateProfile(name: 'Budi Hartono');
       expect(success, isTrue);
       expect(authProvider.user?.name, equals('Budi Hartono'));
-      expect(fakeRepo.users[authProvider.user!.id!]?.name, equals('Budi Hartono'));
+      expect(
+        fakeRepo.users[authProvider.user!.id!]?.name,
+        equals('Budi Hartono'),
+      );
     });
   });
 
@@ -186,13 +198,13 @@ void main() {
           ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
           ChangeNotifierProvider<ThemeProvider>.value(value: themeProvider),
         ],
-        child: const MaterialApp(
-          home: ProfileScreen(),
-        ),
+        child: const MaterialApp(home: ProfileScreen()),
       );
     }
 
-    testWidgets('1. Menampilkan informasi profil akun yang sedang login', (tester) async {
+    testWidgets('1. Menampilkan informasi profil akun yang sedang login', (
+      tester,
+    ) async {
       await authProvider.register(
         name: 'Ahmad Dahlan',
         email: 'ahmad@example.com',
@@ -222,30 +234,35 @@ void main() {
       expect(find.text('Open Source (MIT)'), findsOneWidget);
     });
 
-    testWidgets('3. Menampilkan opsi preferensi tema dan membuka dialog pilihan tema', (tester) async {
-      await tester.pumpWidget(createTestWidget());
-      await tester.pumpAndSettle();
+    testWidgets(
+      '3. Menampilkan opsi preferensi tema dan membuka dialog pilihan tema',
+      (tester) async {
+        await tester.pumpWidget(createTestWidget());
+        await tester.pumpAndSettle();
 
-      expect(find.text('Tema Aplikasi'), findsOneWidget);
-      expect(find.text('Preferensi Tampilan'), findsOneWidget);
+        expect(find.text('Tema Aplikasi'), findsOneWidget);
+        expect(find.text('Preferensi Tampilan'), findsOneWidget);
 
-      // Buka dialog tema
-      await tester.tap(find.text('Tema Aplikasi'));
-      await tester.pumpAndSettle();
+        // Buka dialog tema
+        await tester.tap(find.text('Tema Aplikasi'));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Pilih Tema Aplikasi'), findsOneWidget);
-      expect(find.text('Mode Terang'), findsOneWidget);
-      expect(find.text('Mode Gelap'), findsOneWidget);
-      expect(find.text('Sistem (Otomatis)'), findsOneWidget);
+        expect(find.text('Pilih Tema Aplikasi'), findsOneWidget);
+        expect(find.text('Mode Terang'), findsOneWidget);
+        expect(find.text('Mode Gelap'), findsOneWidget);
+        expect(find.text('Sistem (Otomatis)'), findsOneWidget);
 
-      // Pilih Mode Gelap
-      await tester.tap(find.text('Mode Gelap'));
-      await tester.pumpAndSettle();
+        // Pilih Mode Gelap
+        await tester.tap(find.text('Mode Gelap'));
+        await tester.pumpAndSettle();
 
-      expect(themeProvider.themeMode, equals(ThemeMode.dark));
-    });
+        expect(themeProvider.themeMode, equals(ThemeMode.dark));
+      },
+    );
 
-    testWidgets('4. Membuka dialog konfirmasi logout dan membatalkannya', (tester) async {
+    testWidgets('4. Membuka dialog konfirmasi logout dan membatalkannya', (
+      tester,
+    ) async {
       await authProvider.register(
         name: 'Ahmad Dahlan',
         email: 'ahmad@example.com',
@@ -277,33 +294,38 @@ void main() {
       expect(authProvider.isAuthenticated, isTrue);
     });
 
-    testWidgets('5. Konfirmasi logout berhasil mengeluarkan akun dan kembali ke login', (tester) async {
-      await authProvider.register(
-        name: 'Ahmad Dahlan',
-        email: 'ahmad@example.com',
-        password: 'password123',
-        confirmPassword: 'password123',
-      );
+    testWidgets(
+      '5. Konfirmasi logout berhasil mengeluarkan akun dan kembali ke login',
+      (tester) async {
+        await authProvider.register(
+          name: 'Ahmad Dahlan',
+          email: 'ahmad@example.com',
+          password: 'password123',
+          confirmPassword: 'password123',
+        );
 
-      await tester.pumpWidget(createTestWidget());
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(createTestWidget());
+        await tester.pumpAndSettle();
 
-      final logoutFinder = find.text('Keluar dari Akun');
-      await tester.scrollUntilVisible(logoutFinder, 200);
-      await tester.pumpAndSettle();
+        final logoutFinder = find.text('Keluar dari Akun');
+        await tester.scrollUntilVisible(logoutFinder, 200);
+        await tester.pumpAndSettle();
 
-      await tester.tap(logoutFinder);
-      await tester.pumpAndSettle();
+        await tester.tap(logoutFinder);
+        await tester.pumpAndSettle();
 
-      // Klik tombol Keluar di dialog
-      await tester.tap(find.widgetWithText(FilledButton, 'Keluar'));
-      await tester.pumpAndSettle();
+        // Klik tombol Keluar di dialog
+        await tester.tap(find.widgetWithText(FilledButton, 'Keluar'));
+        await tester.pumpAndSettle();
 
-      expect(authProvider.isAuthenticated, isFalse);
-      expect(find.byType(LoginScreen), findsOneWidget);
-    });
+        expect(authProvider.isAuthenticated, isFalse);
+        expect(find.byType(LoginScreen), findsOneWidget);
+      },
+    );
 
-    testWidgets('6. Ubah nama melalui dialog mengubah nama akun seketika', (tester) async {
+    testWidgets('6. Ubah nama melalui dialog mengubah nama akun seketika', (
+      tester,
+    ) async {
       await authProvider.register(
         name: 'Ahmad Dahlan',
         email: 'ahmad@example.com',

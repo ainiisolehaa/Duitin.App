@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+
 import '../models/statistic_data.dart';
 import '../utils/format_helper.dart';
 
@@ -84,7 +85,9 @@ class IncomeExpenseBarChart extends StatelessWidget {
                                       ? 'Masuk: ${FormatHelper.formatRupiah(stat.income)}'
                                       : 'Keluar: ${FormatHelper.formatRupiah(stat.expense)}',
                                   style: TextStyle(
-                                    color: isIncome ? Colors.greenAccent : Colors.redAccent,
+                                    color: isIncome
+                                        ? Colors.greenAccent
+                                        : Colors.redAccent,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -120,7 +123,8 @@ class IncomeExpenseBarChart extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600,
-                                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                                    color: theme.colorScheme.onSurface
+                                        .withValues(alpha: 0.7),
                                   ),
                                 ),
                               );
@@ -132,7 +136,9 @@ class IncomeExpenseBarChart extends StatelessWidget {
                         show: true,
                         drawVerticalLine: false,
                         getDrawingHorizontalLine: (value) => FlLine(
-                          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
+                          color: theme.colorScheme.outlineVariant.withValues(
+                            alpha: 0.3,
+                          ),
                           strokeWidth: 1,
                         ),
                       ),
@@ -148,14 +154,18 @@ class IncomeExpenseBarChart extends StatelessWidget {
                               toY: stat.income,
                               color: Colors.green.shade600,
                               width: 12,
-                              borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(4),
+                              ),
                             ),
                             // Rod 1: Pengeluaran (Merah)
                             BarChartRodData(
                               toY: stat.expense,
                               color: Colors.red.shade600,
                               width: 12,
-                              borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(4),
+                              ),
                             ),
                           ],
                         );
@@ -189,4 +199,3 @@ class IncomeExpenseBarChart extends StatelessWidget {
     );
   }
 }
-

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+
 import '../providers/budget_provider.dart';
 import '../utils/format_helper.dart';
 
@@ -84,7 +85,7 @@ class _AddBudgetDialogState extends State<AddBudgetDialog> {
     final now = DateTime.now();
     final provider = context.read<BudgetProvider>();
 
-    await provider.setBudget(
+    final success = await provider.setBudget(
       userId: widget.userId,
       category: _selectedCategory,
       amount: amount,
@@ -92,18 +93,35 @@ class _AddBudgetDialogState extends State<AddBudgetDialog> {
       year: now.year,
     );
 
-    if (mounted) {
-      Navigator.pop(context);
+    if (!mounted) return;
+
+    if (!success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Anggaran "$_selectedCategory" sebesar ${FormatHelper.formatRupiah(amount)} disimpan!',
+            provider.errorMessage ?? 'Anggaran gagal disimpan. Coba lagi.',
           ),
+          backgroundColor: Colors.red.shade700,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
+      return;
     }
+
+    final messenger = ScaffoldMessenger.of(context);
+    Navigator.pop(context);
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          'Anggaran "$_selectedCategory" sebesar ${FormatHelper.formatRupiah(amount)} disimpan!',
+        ),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 
   @override
@@ -155,7 +173,9 @@ class _AddBudgetDialogState extends State<AddBudgetDialog> {
               initialValue: _selectedCategory,
               decoration: InputDecoration(
                 labelText: 'Kategori',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
                 prefixIcon: Icon(
                   FormatHelper.getCategoryIcon(_selectedCategory),
                   color: FormatHelper.getCategoryColor(_selectedCategory),
@@ -197,7 +217,9 @@ class _AddBudgetDialogState extends State<AddBudgetDialog> {
                 labelText: 'Batas Anggaran (Rp)',
                 prefixText: 'Rp ',
                 hintText: '500000',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
               validator: (val) {
                 if (val == null || val.trim().isEmpty) {
@@ -214,10 +236,7 @@ class _AddBudgetDialogState extends State<AddBudgetDialog> {
           onPressed: () => Navigator.pop(context),
           child: const Text('Batal'),
         ),
-        FilledButton(
-          onPressed: _saveBudget,
-          child: const Text('Simpan'),
-        ),
+        FilledButton(onPressed: _saveBudget, child: const Text('Simpan')),
       ],
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../models/statistic_data.dart';
 import '../providers/statistics_provider.dart';
 import '../utils/format_helper.dart';
@@ -33,7 +34,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   String _formatPeriodTitle(StatPeriod period, DateTime refDate) {
     if (period == StatPeriod.weekly) {
-      final monday = DateTime(refDate.year, refDate.month, refDate.day - (refDate.weekday - 1));
+      final monday = DateTime(
+        refDate.year,
+        refDate.month,
+        refDate.day - (refDate.weekday - 1),
+      );
       final sunday = monday.add(const Duration(days: 6));
       return '${FormatHelper.formatDate(monday)} - ${FormatHelper.formatDate(sunday)}';
     } else {
@@ -48,7 +53,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        title: const Text('Statistik Keuangan', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Statistik Keuangan',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
       ),
       body: Consumer<StatisticsProvider>(
@@ -68,7 +76,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         ButtonSegment(
                           value: StatPeriod.weekly,
                           label: Text('Mingguan'),
-                          icon: Icon(Icons.calendar_view_week_rounded, size: 18),
+                          icon: Icon(
+                            Icons.calendar_view_week_rounded,
+                            size: 18,
+                          ),
                         ),
                         ButtonSegment(
                           value: StatPeriod.monthly,
@@ -86,9 +97,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
                   // ── 2. Navigasi Geser Periode (Sebelumnya / Selanjutnya) ──
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                      color: theme.colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(
@@ -97,10 +112,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         IconButton(
                           icon: const Icon(Icons.chevron_left_rounded),
                           tooltip: 'Periode Sebelumnya',
-                          onPressed: () => statProvider.changeDateOffset(-1, widget.userId),
+                          onPressed: () =>
+                              statProvider.changeDateOffset(-1, widget.userId),
                         ),
                         Text(
-                          _formatPeriodTitle(statProvider.period, statProvider.referenceDate),
+                          _formatPeriodTitle(
+                            statProvider.period,
+                            statProvider.referenceDate,
+                          ),
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -109,7 +128,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         IconButton(
                           icon: const Icon(Icons.chevron_right_rounded),
                           tooltip: 'Periode Selanjutnya',
-                          onPressed: () => statProvider.changeDateOffset(1, widget.userId),
+                          onPressed: () =>
+                              statProvider.changeDateOffset(1, widget.userId),
                         ),
                       ],
                     ),
@@ -124,7 +144,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       color: theme.colorScheme.surface,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
+                        color: theme.colorScheme.outlineVariant.withValues(
+                          alpha: 0.4,
+                        ),
                       ),
                     ),
                     child: Row(
@@ -136,20 +158,27 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             children: [
                               Row(
                                 children: [
-                                  Icon(Icons.arrow_downward_rounded, size: 14, color: Colors.green.shade700),
+                                  Icon(
+                                    Icons.arrow_downward_rounded,
+                                    size: 14,
+                                    color: Colors.green.shade700,
+                                  ),
                                   const SizedBox(width: 4),
                                   Text(
                                     'Pemasukan',
                                     style: TextStyle(
                                       fontSize: 11,
-                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                                      color: theme.colorScheme.onSurface
+                                          .withValues(alpha: 0.6),
                                     ),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                FormatHelper.formatRupiah(statProvider.totalIncome),
+                                FormatHelper.formatRupiah(
+                                  statProvider.totalIncome,
+                                ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
@@ -161,7 +190,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             ],
                           ),
                         ),
-                        Container(height: 32, width: 1, color: theme.colorScheme.outlineVariant),
+                        Container(
+                          height: 32,
+                          width: 1,
+                          color: theme.colorScheme.outlineVariant,
+                        ),
                         const SizedBox(width: 14),
 
                         // Pengeluaran
@@ -171,20 +204,27 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             children: [
                               Row(
                                 children: [
-                                  Icon(Icons.arrow_upward_rounded, size: 14, color: Colors.red.shade700),
+                                  Icon(
+                                    Icons.arrow_upward_rounded,
+                                    size: 14,
+                                    color: Colors.red.shade700,
+                                  ),
                                   const SizedBox(width: 4),
                                   Text(
                                     'Pengeluaran',
                                     style: TextStyle(
                                       fontSize: 11,
-                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                                      color: theme.colorScheme.onSurface
+                                          .withValues(alpha: 0.6),
                                     ),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                FormatHelper.formatRupiah(statProvider.totalExpense),
+                                FormatHelper.formatRupiah(
+                                  statProvider.totalExpense,
+                                ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
@@ -196,7 +236,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             ],
                           ),
                         ),
-                        Container(height: 32, width: 1, color: theme.colorScheme.outlineVariant),
+                        Container(
+                          height: 32,
+                          width: 1,
+                          color: theme.colorScheme.outlineVariant,
+                        ),
                         const SizedBox(width: 14),
 
                         // Tabungan Bersih
@@ -209,27 +253,34 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                                   Icon(
                                     Icons.savings_rounded,
                                     size: 14,
-                                    color: statProvider.netSavings >= 0 ? Colors.teal : Colors.red,
+                                    color: statProvider.netSavings >= 0
+                                        ? Colors.teal
+                                        : Colors.red,
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
                                     'Selisih',
                                     style: TextStyle(
                                       fontSize: 11,
-                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                                      color: theme.colorScheme.onSurface
+                                          .withValues(alpha: 0.6),
                                     ),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                FormatHelper.formatRupiah(statProvider.netSavings),
+                                FormatHelper.formatRupiah(
+                                  statProvider.netSavings,
+                                ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: statProvider.netSavings >= 0 ? Colors.teal.shade700 : Colors.red.shade700,
+                                  color: statProvider.netSavings >= 0
+                                      ? Colors.teal.shade700
+                                      : Colors.red.shade700,
                                 ),
                               ),
                             ],

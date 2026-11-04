@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../providers/auth_provider.dart';
 import 'main_navigation_screen.dart';
 
@@ -269,8 +270,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             width: double.infinity,
                             height: 52,
                             child: FilledButton(
-                              onPressed:
-                                  auth.isLoading ? null : _handleRegister,
+                              onPressed: auth.isLoading
+                                  ? null
+                                  : _handleRegister,
                               style: FilledButton.styleFrom(
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -332,4 +334,3 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
-

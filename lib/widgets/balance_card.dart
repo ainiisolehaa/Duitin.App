@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../utils/format_helper.dart';
 
 /// Kartu ringkasan saldo utama, total pemasukan, dan total pengeluaran.
@@ -51,7 +52,10 @@ class BalanceCard extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
@@ -59,7 +63,11 @@ class BalanceCard extends StatelessWidget {
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.account_balance_wallet, size: 14, color: Colors.white),
+                    Icon(
+                      Icons.account_balance_wallet,
+                      size: 14,
+                      color: Colors.white,
+                    ),
                     SizedBox(width: 4),
                     Text(
                       'IDR',
@@ -204,4 +212,3 @@ class BalanceCard extends StatelessWidget {
     );
   }
 }
-

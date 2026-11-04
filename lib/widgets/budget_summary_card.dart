@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../models/budget.dart';
 import '../utils/format_helper.dart';
 
@@ -37,7 +38,8 @@ class BudgetSummaryCard extends StatelessWidget {
     final double percentage = totalBudget > 0
         ? (totalSpentForBudgets / totalBudget).clamp(0.0, 1.0)
         : 0.0;
-    final bool isOverBudget = totalBudget > 0 && totalSpentForBudgets > totalBudget;
+    final bool isOverBudget =
+        totalBudget > 0 && totalSpentForBudgets > totalBudget;
     final double remainingBudget = totalBudget - totalSpentForBudgets;
 
     return Card(
@@ -93,7 +95,9 @@ class BudgetSummaryCard extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 12,
-                                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                                color: theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.6,
+                                ),
                               ),
                             ),
                           ],
@@ -110,11 +114,17 @@ class BudgetSummaryCard extends StatelessWidget {
                         onPressed: onViewDetails,
                         style: TextButton.styleFrom(
                           visualDensity: VisualDensity.compact,
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                         ),
                         child: const Text(
                           'Detail',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
@@ -123,11 +133,17 @@ class BudgetSummaryCard extends StatelessWidget {
                       icon: const Icon(Icons.add_rounded, size: 18),
                       label: const Text(
                         'Atur',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       style: TextButton.styleFrom(
                         visualDensity: VisualDensity.compact,
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                       ),
                     ),
                   ],
@@ -140,12 +156,17 @@ class BudgetSummaryCard extends StatelessWidget {
               // Tampilan saat belum ada anggaran
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 16,
+                ),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
+                    color: theme.colorScheme.outlineVariant.withValues(
+                      alpha: 0.4,
+                    ),
                   ),
                 ),
                 child: Column(
@@ -169,7 +190,9 @@ class BudgetSummaryCard extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 12,
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.6,
+                        ),
                       ),
                     ),
                   ],
@@ -185,14 +208,18 @@ class BudgetSummaryCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
-                      color: isOverBudget ? Colors.red : theme.colorScheme.onSurface,
+                      color: isOverBudget
+                          ? Colors.red
+                          : theme.colorScheme.onSurface,
                     ),
                   ),
                   Text(
                     'dari ${FormatHelper.formatRupiah(totalBudget)}',
                     style: TextStyle(
                       fontSize: 13,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.65),
+                      color: theme.colorScheme.onSurface.withValues(
+                        alpha: 0.65,
+                      ),
                     ),
                   ),
                 ],
@@ -210,8 +237,8 @@ class BudgetSummaryCard extends StatelessWidget {
                     isOverBudget
                         ? Colors.red
                         : percentage > 0.8
-                            ? Colors.orange
-                            : theme.colorScheme.primary,
+                        ? Colors.orange
+                        : theme.colorScheme.primary,
                   ),
                 ),
               ),
@@ -226,7 +253,9 @@ class BudgetSummaryCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
-                      color: isOverBudget ? Colors.red : theme.colorScheme.primary,
+                      color: isOverBudget
+                          ? Colors.red
+                          : theme.colorScheme.primary,
                     ),
                   ),
                   Text(
@@ -281,7 +310,9 @@ class BudgetSummaryCard extends StatelessWidget {
                                 fontWeight: FontWeight.w500,
                                 color: catOver
                                     ? Colors.red
-                                    : theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                                    : theme.colorScheme.onSurface.withValues(
+                                        alpha: 0.8,
+                                      ),
                               ),
                             ),
                           ],
@@ -313,4 +344,3 @@ class BudgetSummaryCard extends StatelessWidget {
     );
   }
 }
-

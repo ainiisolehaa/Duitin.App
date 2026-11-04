@@ -1,4 +1,5 @@
 import 'package:sqflite/sqflite.dart' hide Transaction;
+
 import '../database/database_helper.dart';
 import '../models/transaction.dart';
 
@@ -7,7 +8,7 @@ class TransactionRepository {
   final DatabaseHelper _dbHelper;
 
   TransactionRepository({DatabaseHelper? dbHelper})
-      : _dbHelper = dbHelper ?? DatabaseHelper.instance;
+    : _dbHelper = dbHelper ?? DatabaseHelper.instance;
 
   // ──────────── CREATE ────────────
 
@@ -87,7 +88,15 @@ class TransactionRepository {
     }
 
     if (endDate != null) {
-      final end = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59, 999);
+      final end = DateTime(
+        endDate.year,
+        endDate.month,
+        endDate.day,
+        23,
+        59,
+        59,
+        999,
+      );
       whereClauses.add('date <= ?');
       whereArgs.add(end.millisecondsSinceEpoch);
     }
@@ -238,11 +247,7 @@ class TransactionRepository {
   /// Hapus transaksi berdasarkan ID.
   Future<int> deleteTransaction(int id) async {
     final db = await _dbHelper.database;
-    return await db.delete(
-      'transactions',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete('transactions', where: 'id = ?', whereArgs: [id]);
   }
 
   /// Hapus semua transaksi milik user tertentu.

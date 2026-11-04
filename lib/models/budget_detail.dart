@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'budget.dart';
 
 /// Status batas penggunaan anggaran.
@@ -17,10 +18,7 @@ class CategoryBudgetDetail {
   final Budget budget;
   final double spent;
 
-  CategoryBudgetDetail({
-    required this.budget,
-    required this.spent,
-  });
+  CategoryBudgetDetail({required this.budget, required this.spent});
 
   String get category => budget.category;
   double get amount => budget.amount;
@@ -37,4 +35,3 @@ class CategoryBudgetDetail {
   bool get isOverBudget => spent >= amount;
   bool get isNearLimit => percentage >= 80.0 && !isOverBudget;
 }
-

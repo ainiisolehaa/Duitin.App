@@ -24,7 +24,10 @@ class FilterMockTransactionRepository extends TransactionRepository {
 
   @override
   Future<List<String>> getDistinctCategories(int userId) async {
-    final set = _db.where((t) => t.userId == userId).map((t) => t.category).toSet();
+    final set = _db
+        .where((t) => t.userId == userId)
+        .map((t) => t.category)
+        .toSet();
     final list = set.toList()..sort();
     return list;
   }
@@ -53,8 +56,12 @@ class FilterMockTransactionRepository extends TransactionRepository {
       if (type != null && t.type != type) return false;
 
       // 3. Filter Kategori
-      if (category != null && category.trim().isNotEmpty && category != 'Semua') {
-        if (t.category.toLowerCase() != category.toLowerCase().trim()) return false;
+      if (category != null &&
+          category.trim().isNotEmpty &&
+          category != 'Semua') {
+        if (t.category.toLowerCase() != category.toLowerCase().trim()) {
+          return false;
+        }
       }
 
       // 4. Filter Rentang Tanggal
@@ -63,13 +70,20 @@ class FilterMockTransactionRepository extends TransactionRepository {
         if (t.date.isBefore(start)) return false;
       }
       if (endDate != null) {
-        final end = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59, 999);
+        final end = DateTime(
+          endDate.year,
+          endDate.month,
+          endDate.day,
+          23,
+          59,
+          59,
+          999,
+        );
         if (t.date.isAfter(end)) return false;
       }
 
       return true;
-    }).toList()
-      ..sort((a, b) => b.date.compareTo(a.date));
+    }).toList()..sort((a, b) => b.date.compareTo(a.date));
   }
 }
 
@@ -88,50 +102,60 @@ void main() {
       provider = TransactionProvider(repository: repository);
 
       // Data sampel untuk pengujian riwayat & filter
-      await repository.insertTransaction(Transaction(
-        userId: userId,
-        category: 'Makanan',
-        amount: 25000,
-        type: TransactionType.expense,
-        date: today,
-        note: 'Nasi padang siang',
-      ));
+      await repository.insertTransaction(
+        Transaction(
+          userId: userId,
+          category: 'Makanan',
+          amount: 25000,
+          type: TransactionType.expense,
+          date: today,
+          note: 'Nasi padang siang',
+        ),
+      );
 
-      await repository.insertTransaction(Transaction(
-        userId: userId,
-        category: 'Transportasi',
-        amount: 15000,
-        type: TransactionType.expense,
-        date: today,
-        note: 'Kereta komuter',
-      ));
+      await repository.insertTransaction(
+        Transaction(
+          userId: userId,
+          category: 'Transportasi',
+          amount: 15000,
+          type: TransactionType.expense,
+          date: today,
+          note: 'Kereta komuter',
+        ),
+      );
 
-      await repository.insertTransaction(Transaction(
-        userId: userId,
-        category: 'Makanan',
-        amount: 50000,
-        type: TransactionType.expense,
-        date: yesterday,
-        note: 'Makan malam cafe',
-      ));
+      await repository.insertTransaction(
+        Transaction(
+          userId: userId,
+          category: 'Makanan',
+          amount: 50000,
+          type: TransactionType.expense,
+          date: yesterday,
+          note: 'Makan malam cafe',
+        ),
+      );
 
-      await repository.insertTransaction(Transaction(
-        userId: userId,
-        category: 'Gaji',
-        amount: 6000000,
-        type: TransactionType.income,
-        date: yesterday,
-        note: 'Gaji bulanan',
-      ));
+      await repository.insertTransaction(
+        Transaction(
+          userId: userId,
+          category: 'Gaji',
+          amount: 6000000,
+          type: TransactionType.income,
+          date: yesterday,
+          note: 'Gaji bulanan',
+        ),
+      );
 
-      await repository.insertTransaction(Transaction(
-        userId: userId,
-        category: 'Bonus',
-        amount: 500000,
-        type: TransactionType.income,
-        date: lastWeek,
-        note: 'Bonus proyek selesai',
-      ));
+      await repository.insertTransaction(
+        Transaction(
+          userId: userId,
+          category: 'Bonus',
+          amount: 500000,
+          type: TransactionType.income,
+          date: lastWeek,
+          note: 'Bonus proyek selesai',
+        ),
+      );
     });
 
     test('1. Memuat seluruh riwayat transaksi tanpa filter', () async {
@@ -155,21 +179,33 @@ void main() {
 
     test('3. Filter berdasarkan Jenis Transaksi (Income / Expense)', () async {
       // Filter Pengeluaran
-      await provider.filterTransactions(userId: userId, type: TransactionType.expense);
+      await provider.filterTransactions(
+        userId: userId,
+        type: TransactionType.expense,
+      );
       expect(provider.filteredTransactions.length, equals(3));
       expect(provider.filteredTransactions.every((t) => t.isExpense), isTrue);
 
       // Filter Pemasukan
-      await provider.filterTransactions(userId: userId, type: TransactionType.income);
+      await provider.filterTransactions(
+        userId: userId,
+        type: TransactionType.income,
+      );
       expect(provider.filteredTransactions.length, equals(2));
       expect(provider.filteredTransactions.every((t) => t.isIncome), isTrue);
     });
 
     test('4. Filter berdasarkan Kategori Spesifik', () async {
-      await provider.filterTransactions(userId: userId, category: 'Transportasi');
+      await provider.filterTransactions(
+        userId: userId,
+        category: 'Transportasi',
+      );
 
       expect(provider.filteredTransactions.length, equals(1));
-      expect(provider.filteredTransactions.first.category, equals('Transportasi'));
+      expect(
+        provider.filteredTransactions.first.category,
+        equals('Transportasi'),
+      );
     });
 
     test('5. Filter berdasarkan Periode Rentang Tanggal', () async {
@@ -181,7 +217,10 @@ void main() {
       );
 
       expect(provider.filteredTransactions.length, equals(2));
-      expect(provider.filteredTransactions.every((t) => t.date.day == 4), isTrue);
+      expect(
+        provider.filteredTransactions.every((t) => t.date.day == 4),
+        isTrue,
+      );
     });
 
     test('6. Kombinasi Filter: Pencarian + Jenis + Kategori + Periode Tanggal digunakan bersamaan', () async {
@@ -203,21 +242,26 @@ void main() {
       expect(tx.amount, equals(25000.0));
     });
 
-    test('7. Filter menghasilkan state kosong jika tidak ada yang cocok', () async {
-      await provider.filterTransactions(
-        userId: userId,
-        searchQuery: 'KataKunciTidakAda',
-      );
+    test(
+      '7. Filter menghasilkan state kosong jika tidak ada yang cocok',
+      () async {
+        await provider.filterTransactions(
+          userId: userId,
+          searchQuery: 'KataKunciTidakAda',
+        );
 
-      expect(provider.filteredTransactions, isEmpty);
-    });
+        expect(provider.filteredTransactions, isEmpty);
+      },
+    );
 
     test('8. Mendapatkan daftar kategori unik dari SQLite', () async {
       final categories = await repository.getDistinctCategories(userId);
 
-      expect(categories, containsAll(['Makanan', 'Transportasi', 'Gaji', 'Bonus']));
+      expect(
+        categories,
+        containsAll(['Makanan', 'Transportasi', 'Gaji', 'Bonus']),
+      );
       expect(categories.length, equals(4));
     });
   });
 }
-

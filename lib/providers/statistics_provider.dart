@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../models/statistic_data.dart';
 import '../repositories/transaction_repository.dart';
 import '../utils/format_helper.dart';
@@ -21,7 +22,7 @@ class StatisticsProvider extends ChangeNotifier {
   String? _errorMessage;
 
   StatisticsProvider({TransactionRepository? repository})
-      : _repository = repository ?? TransactionRepository();
+    : _repository = repository ?? TransactionRepository();
 
   // ──────────── GETTERS ────────────
 
@@ -58,7 +59,11 @@ class StatisticsProvider extends ChangeNotifier {
     if (_period == StatPeriod.weekly) {
       _referenceDate = _referenceDate.add(Duration(days: offset * 7));
     } else {
-      _referenceDate = DateTime(_referenceDate.year, _referenceDate.month + offset, 1);
+      _referenceDate = DateTime(
+        _referenceDate.year,
+        _referenceDate.month + offset,
+        1,
+      );
     }
     notifyListeners();
     await loadStatistics(userId);
@@ -88,7 +93,15 @@ class StatisticsProvider extends ChangeNotifier {
   Future<void> _calculateWeeklyStats(int userId) async {
     final now = _referenceDate;
     final monday = DateTime(now.year, now.month, now.day - (now.weekday - 1));
-    final sunday = DateTime(monday.year, monday.month, monday.day + 6, 23, 59, 59, 999);
+    final sunday = DateTime(
+      monday.year,
+      monday.month,
+      monday.day + 6,
+      23,
+      59,
+      59,
+      999,
+    );
 
     final transactions = await _repository.getTransactionsByDateRange(
       userId: userId,
@@ -96,7 +109,15 @@ class StatisticsProvider extends ChangeNotifier {
       endDate: sunday,
     );
 
-    final List<String> dayLabels = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+    final List<String> dayLabels = [
+      'Sen',
+      'Sel',
+      'Rab',
+      'Kam',
+      'Jum',
+      'Sab',
+      'Min',
+    ];
     final List<double> dailyIncomes = List.filled(7, 0.0);
     final List<double> dailyExpenses = List.filled(7, 0.0);
     final Map<String, double> categoryMap = {};
@@ -113,7 +134,8 @@ class StatisticsProvider extends ChangeNotifier {
         } else {
           dailyExpenses[dayIndex] += tx.amount;
           sumExpense += tx.amount;
-          categoryMap[tx.category] = (categoryMap[tx.category] ?? 0) + tx.amount;
+          categoryMap[tx.category] =
+              (categoryMap[tx.category] ?? 0) + tx.amount;
         }
       }
     }
@@ -190,7 +212,10 @@ class StatisticsProvider extends ChangeNotifier {
   }
 
   /// Konversi map pengeluaran per kategori menjadi daftar `CategoryStat` lengkap dengan persentase & warna.
-  List<CategoryStat> _buildCategoryStats(Map<String, double> categoryMap, double totalExpense) {
+  List<CategoryStat> _buildCategoryStats(
+    Map<String, double> categoryMap,
+    double totalExpense,
+  ) {
     if (totalExpense <= 0 || categoryMap.isEmpty) return [];
 
     final list = categoryMap.entries.map((entry) {

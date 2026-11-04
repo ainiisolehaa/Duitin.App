@@ -235,36 +235,41 @@ void main() {
       expect(txProvider.balance, equals(500000.0));
     });
 
-    test('4. Hapus Transaksi menghapus data dari DB dan mengembalikan saldo', () async {
-      final now = DateTime.now();
+    test(
+      '4. Hapus Transaksi menghapus data dari DB dan mengembalikan saldo',
+      () async {
+        final now = DateTime.now();
 
-      await txProvider.addTransaction(
-        userId: activeUserId,
-        category: 'Gaji',
-        amount: 5000000,
-        type: TransactionType.income,
-        date: now,
-      );
-      await txProvider.addTransaction(
-        userId: activeUserId,
-        category: 'Belanja',
-        amount: 1500000,
-        type: TransactionType.expense,
-        date: now,
-      );
+        await txProvider.addTransaction(
+          userId: activeUserId,
+          category: 'Gaji',
+          amount: 5000000,
+          type: TransactionType.income,
+          date: now,
+        );
+        await txProvider.addTransaction(
+          userId: activeUserId,
+          category: 'Belanja',
+          amount: 1500000,
+          type: TransactionType.expense,
+          date: now,
+        );
 
-      expect(txProvider.transactions.length, equals(2));
-      expect(txProvider.balance, equals(3500000.0));
+        expect(txProvider.transactions.length, equals(2));
+        expect(txProvider.balance, equals(3500000.0));
 
-      // Ambil transaksi belanja untuk dihapus
-      final expenseTx = txProvider.transactions.firstWhere((t) => t.category == 'Belanja');
-      await txProvider.deleteTransaction(expenseTx.id!, activeUserId);
+        // Ambil transaksi belanja untuk dihapus
+        final expenseTx = txProvider.transactions.firstWhere(
+          (t) => t.category == 'Belanja',
+        );
+        await txProvider.deleteTransaction(expenseTx.id!, activeUserId);
 
-      expect(txProvider.transactions.length, equals(1));
-      expect(txProvider.totalExpense, equals(0.0));
-      expect(txProvider.balance, equals(5000000.0));
-      expect(txProvider.expenseSummary['Belanja'], isNull);
-    });
+        expect(txProvider.transactions.length, equals(1));
+        expect(txProvider.totalExpense, equals(0.0));
+        expect(txProvider.balance, equals(5000000.0));
+        expect(txProvider.expenseSummary['Belanja'], isNull);
+      },
+    );
 
     test('5. Isolasi Transaksi antar Pengguna (User A vs User B)', () async {
       final now = DateTime.now();
@@ -331,4 +336,3 @@ void main() {
     });
   });
 }
-

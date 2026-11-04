@@ -1,12 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/user.dart';
 import '../repositories/auth_repository.dart';
 
 /// Status autentikasi aplikasi.
 enum AuthStatus {
-  unknown,        // Belum dicek (splash screen)
-  authenticated,  // User sudah login
+  unknown, // Belum dicek (splash screen)
+  authenticated, // User sudah login
   unauthenticated, // User belum login
 }
 
@@ -27,7 +28,7 @@ class AuthProvider extends ChangeNotifier {
   static const String _keyUserId = 'user_id';
 
   AuthProvider({AuthRepository? repository})
-      : _repository = repository ?? AuthRepository();
+    : _repository = repository ?? AuthRepository();
 
   // ──────────── GETTERS ────────────
 
@@ -74,10 +75,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// Login dengan email dan password.
-  Future<bool> login({
-    required String email,
-    required String password,
-  }) async {
+  Future<bool> login({required String email, required String password}) async {
     _setLoading(true);
     _errorMessage = null;
 
@@ -90,10 +88,7 @@ class AuthProvider extends ChangeNotifier {
         return false;
       }
 
-      final result = await _repository.login(
-        email: email,
-        password: password,
-      );
+      final result = await _repository.login(email: email, password: password);
 
       if (result.success && result.user != null) {
         _user = result.user;
@@ -162,9 +157,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// Update profil pengguna (nama pengguna).
-  Future<bool> updateProfile({
-    required String name,
-  }) async {
+  Future<bool> updateProfile({required String name}) async {
     if (_user == null) {
       _errorMessage = 'Tidak ada pengguna yang sedang login.';
       notifyListeners();
@@ -303,4 +296,3 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
-

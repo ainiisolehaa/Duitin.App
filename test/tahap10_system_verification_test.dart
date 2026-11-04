@@ -204,8 +204,12 @@ class MockTxRepo extends TransactionRepository {
       if (type != null && t.type != type) return false;
 
       // 3. Filter Kategori
-      if (category != null && category.trim().isNotEmpty && category != 'Semua') {
-        if (t.category.toLowerCase() != category.toLowerCase().trim()) return false;
+      if (category != null &&
+          category.trim().isNotEmpty &&
+          category != 'Semua') {
+        if (t.category.toLowerCase() != category.toLowerCase().trim()) {
+          return false;
+        }
       }
 
       // 4. Filter Rentang Tanggal
@@ -213,8 +217,7 @@ class MockTxRepo extends TransactionRepository {
       if (endDate != null && t.date.isAfter(endDate)) return false;
 
       return true;
-    }).toList()
-      ..sort((a, b) => b.date.compareTo(a.date));
+    }).toList()..sort((a, b) => b.date.compareTo(a.date));
   }
 }
 
@@ -312,14 +315,14 @@ void main() {
           ChangeNotifierProvider<BudgetProvider>.value(value: budgetProvider),
           ChangeNotifierProvider<StatisticsProvider>.value(value: statProvider),
         ],
-        child: MaterialApp(
-          home: home,
-        ),
+        child: MaterialApp(home: home),
       );
     }
 
     // ── 1. Navigasi Minimal 5 Halaman (10 Halaman Lengkap) ──
-    testWidgets('1. Navigasi aplikasi ke seluruh 10 halaman tanpa error', (tester) async {
+    testWidgets('1. Navigasi aplikasi ke seluruh 10 halaman tanpa error', (
+      tester,
+    ) async {
       await authProvider.register(
         name: 'Siti Aminah',
         email: 'siti@example.com',
@@ -415,135 +418,171 @@ void main() {
     });
 
     // ── 3 & 4. CRUD Transaksi & Perhitungan Saldo ──
-    test('3 & 4. Pemeriksaan CRUD Transaksi dan Kalkulasi Saldo Dinamis', () async {
-      const userId = 101;
-      await txProvider.loadDashboardData(userId);
-      expect(txProvider.balance, equals(0.0));
+    test(
+      '3 & 4. Pemeriksaan CRUD Transaksi dan Kalkulasi Saldo Dinamis',
+      () async {
+        const userId = 101;
+        await txProvider.loadDashboardData(userId);
+        expect(txProvider.balance, equals(0.0));
 
-      // CREATE: Tambah Pemasukan Rp 5.000.000
-      await txProvider.addTransaction(
-        userId: userId,
-        category: 'Gaji',
-        amount: 5000000,
-        type: TransactionType.income,
-        date: DateTime.now(),
-      );
-      expect(txProvider.totalIncome, equals(5000000));
-      expect(txProvider.totalExpense, equals(0));
-      expect(txProvider.balance, equals(5000000));
+        // CREATE: Tambah Pemasukan Rp 5.000.000
+        await txProvider.addTransaction(
+          userId: userId,
+          category: 'Gaji',
+          amount: 5000000,
+          type: TransactionType.income,
+          date: DateTime.now(),
+        );
+        expect(txProvider.totalIncome, equals(5000000));
+        expect(txProvider.totalExpense, equals(0));
+        expect(txProvider.balance, equals(5000000));
 
-      // CREATE: Tambah Pengeluaran Rp 1.500.000
-      await txProvider.addTransaction(
-        userId: userId,
-        category: 'Belanja',
-        amount: 1500000,
-        type: TransactionType.expense,
-        date: DateTime.now(),
-      );
-      expect(txProvider.totalIncome, equals(5000000));
-      expect(txProvider.totalExpense, equals(1500000));
-      expect(txProvider.balance, equals(3500000));
+        // CREATE: Tambah Pengeluaran Rp 1.500.000
+        await txProvider.addTransaction(
+          userId: userId,
+          category: 'Belanja',
+          amount: 1500000,
+          type: TransactionType.expense,
+          date: DateTime.now(),
+        );
+        expect(txProvider.totalIncome, equals(5000000));
+        expect(txProvider.totalExpense, equals(1500000));
+        expect(txProvider.balance, equals(3500000));
 
-      // READ: Transaksi tersimpan
-      expect(txProvider.transactions.length, equals(2));
-      final expenseTx = txProvider.transactions.firstWhere((t) => t.category == 'Belanja');
+        // READ: Transaksi tersimpan
+        expect(txProvider.transactions.length, equals(2));
+        final expenseTx = txProvider.transactions.firstWhere(
+          (t) => t.category == 'Belanja',
+        );
 
-      // UPDATE: Edit nominal pengeluaran dari 1.500.000 menjadi 2.000.000
-      final updatedTx = expenseTx.copyWith(amount: 2000000);
-      await txProvider.updateTransaction(updatedTx);
-      expect(txProvider.totalExpense, equals(2000000));
-      expect(txProvider.balance, equals(3000000));
+        // UPDATE: Edit nominal pengeluaran dari 1.500.000 menjadi 2.000.000
+        final updatedTx = expenseTx.copyWith(amount: 2000000);
+        await txProvider.updateTransaction(updatedTx);
+        expect(txProvider.totalExpense, equals(2000000));
+        expect(txProvider.balance, equals(3000000));
 
-      // DELETE: Hapus pengeluaran
-      await txProvider.deleteTransaction(expenseTx.id!, userId);
-      expect(txProvider.totalExpense, equals(0));
-      expect(txProvider.balance, equals(5000000));
-      expect(txProvider.transactions.length, equals(1));
-    });
+        // DELETE: Hapus pengeluaran
+        await txProvider.deleteTransaction(expenseTx.id!, userId);
+        expect(txProvider.totalExpense, equals(0));
+        expect(txProvider.balance, equals(5000000));
+        expect(txProvider.transactions.length, equals(1));
+      },
+    );
 
     // ── 5. Riwayat dan Filter Transaksi ──
-    test('5. Pemeriksaan Riwayat, Pencarian & Multi-Filter Bersamaan', () async {
-      const userId = 202;
-      final now = DateTime.now();
+    test(
+      '5. Pemeriksaan Riwayat, Pencarian & Multi-Filter Bersamaan',
+      () async {
+        const userId = 202;
+        final now = DateTime.now();
 
-      await txRepo.insertTransaction(Transaction(
-        userId: userId,
-        category: 'Makanan',
-        amount: 50000,
-        type: TransactionType.expense,
-        date: now,
-        note: 'Makan siang bakso',
-      ));
-      await txRepo.insertTransaction(Transaction(
-        userId: userId,
-        category: 'Transportasi',
-        amount: 20000,
-        type: TransactionType.expense,
-        date: now,
-        note: 'Bensin motor',
-      ));
-      await txRepo.insertTransaction(Transaction(
-        userId: userId,
-        category: 'Gaji',
-        amount: 3000000,
-        type: TransactionType.income,
-        date: now,
-        note: 'Gaji bulanan',
-      ));
+        await txRepo.insertTransaction(
+          Transaction(
+            userId: userId,
+            category: 'Makanan',
+            amount: 50000,
+            type: TransactionType.expense,
+            date: now,
+            note: 'Makan siang bakso',
+          ),
+        );
+        await txRepo.insertTransaction(
+          Transaction(
+            userId: userId,
+            category: 'Transportasi',
+            amount: 20000,
+            type: TransactionType.expense,
+            date: now,
+            note: 'Bensin motor',
+          ),
+        );
+        await txRepo.insertTransaction(
+          Transaction(
+            userId: userId,
+            category: 'Gaji',
+            amount: 3000000,
+            type: TransactionType.income,
+            date: now,
+            note: 'Gaji bulanan',
+          ),
+        );
 
-      await txProvider.loadDashboardData(userId);
+        await txProvider.loadDashboardData(userId);
 
-      // Filter Pencarian Teks
-      await txProvider.filterTransactions(userId: userId, searchQuery: 'bakso');
-      expect(txProvider.filteredTransactions.length, equals(1));
-      expect(txProvider.filteredTransactions.first.category, equals('Makanan'));
+        // Filter Pencarian Teks
+        await txProvider.filterTransactions(
+          userId: userId,
+          searchQuery: 'bakso',
+        );
+        expect(txProvider.filteredTransactions.length, equals(1));
+        expect(
+          txProvider.filteredTransactions.first.category,
+          equals('Makanan'),
+        );
 
-      // Filter Jenis Transaksi
-      await txProvider.filterTransactions(userId: userId, type: TransactionType.income);
-      expect(txProvider.filteredTransactions.length, equals(1));
-      expect(txProvider.filteredTransactions.first.category, equals('Gaji'));
+        // Filter Jenis Transaksi
+        await txProvider.filterTransactions(
+          userId: userId,
+          type: TransactionType.income,
+        );
+        expect(txProvider.filteredTransactions.length, equals(1));
+        expect(txProvider.filteredTransactions.first.category, equals('Gaji'));
 
-      // Filter Kategori
-      await txProvider.filterTransactions(userId: userId, category: 'Transportasi');
-      expect(txProvider.filteredTransactions.length, equals(1));
-      expect(txProvider.filteredTransactions.first.category, equals('Transportasi'));
+        // Filter Kategori
+        await txProvider.filterTransactions(
+          userId: userId,
+          category: 'Transportasi',
+        );
+        expect(txProvider.filteredTransactions.length, equals(1));
+        expect(
+          txProvider.filteredTransactions.first.category,
+          equals('Transportasi'),
+        );
 
-      // Multi-Filter Bersamaan
-      await txProvider.filterTransactions(
-        userId: userId,
-        searchQuery: 'Bensin',
-        type: TransactionType.expense,
-        category: 'Transportasi',
-      );
-      expect(txProvider.filteredTransactions.length, equals(1));
-    });
+        // Multi-Filter Bersamaan
+        await txProvider.filterTransactions(
+          userId: userId,
+          searchQuery: 'Bensin',
+          type: TransactionType.expense,
+          category: 'Transportasi',
+        );
+        expect(txProvider.filteredTransactions.length, equals(1));
+      },
+    );
 
     // ── 6. Statistik Keuangan ──
     test('6. Pemeriksaan Statistik Mingguan dan Bulanan FL Chart', () async {
       const userId = 303;
       final now = DateTime.now();
 
-      await txRepo.insertTransaction(Transaction(
-        userId: userId,
-        category: 'Bonus',
-        amount: 1000000,
-        type: TransactionType.income,
-        date: now,
-      ));
-      await txRepo.insertTransaction(Transaction(
-        userId: userId,
-        category: 'Makanan',
-        amount: 200000,
-        type: TransactionType.expense,
-        date: now,
-      ));
+      await txRepo.insertTransaction(
+        Transaction(
+          userId: userId,
+          category: 'Bonus',
+          amount: 1000000,
+          type: TransactionType.income,
+          date: now,
+        ),
+      );
+      await txRepo.insertTransaction(
+        Transaction(
+          userId: userId,
+          category: 'Makanan',
+          amount: 200000,
+          type: TransactionType.expense,
+          date: now,
+        ),
+      );
 
       await statProvider.loadStatistics(userId);
 
       expect(statProvider.totalIncome, equals(1000000));
       expect(statProvider.totalExpense, equals(200000));
       expect(statProvider.netSavings, equals(800000));
-      expect(statProvider.categoryStats.any((c) => c.category == 'Makanan'), isTrue);
+      expect(
+        statProvider.categoryStats.any((c) => c.category == 'Makanan'),
+        isTrue,
+      );
 
       // Ganti periode ke Bulanan
       await statProvider.setPeriod(StatPeriod.monthly, userId);
@@ -552,119 +591,142 @@ void main() {
     });
 
     // ── 7. Anggaran Bulanan & Peringatan Batas ──
-    test('7. Pemeriksaan Anggaran Bulanan, Sisa, Persentase & Status Peringatan', () async {
-      const userId = 404;
-      final now = DateTime.now();
+    test(
+      '7. Pemeriksaan Anggaran Bulanan, Sisa, Persentase & Status Peringatan',
+      () async {
+        const userId = 404;
+        final now = DateTime.now();
 
-      // Pasang anggaran bulanan Rp 1.000.000
-      await budgetRepo.insertBudget(Budget(
-        userId: userId,
-        category: 'Makanan',
-        amount: 1000000,
-        month: now.month,
-        year: now.year,
-      ));
+        // Pasang anggaran bulanan Rp 1.000.000
+        await budgetRepo.insertBudget(
+          Budget(
+            userId: userId,
+            category: 'Makanan',
+            amount: 1000000,
+            month: now.month,
+            year: now.year,
+          ),
+        );
 
-      // Pengeluaran Rp 500.000 (50% -> AMAN)
-      await txRepo.insertTransaction(Transaction(
-        userId: userId,
-        category: 'Makanan',
-        amount: 500000,
-        type: TransactionType.expense,
-        date: now,
-      ));
+        // Pengeluaran Rp 500.000 (50% -> AMAN)
+        await txRepo.insertTransaction(
+          Transaction(
+            userId: userId,
+            category: 'Makanan',
+            amount: 500000,
+            type: TransactionType.expense,
+            date: now,
+          ),
+        );
 
-      await budgetProvider.loadCurrentMonthBudgets(userId);
-      expect(budgetProvider.totalBudget, equals(1000000));
-      expect(budgetProvider.totalActualExpense, equals(500000));
-      expect(budgetProvider.remainingBudget, equals(500000));
-      expect(budgetProvider.usagePercentage, closeTo(50.0, 0.1));
-      expect(budgetProvider.overallStatus, equals(BudgetStatus.safe));
+        await budgetProvider.loadCurrentMonthBudgets(userId);
+        expect(budgetProvider.totalBudget, equals(1000000));
+        expect(budgetProvider.totalActualExpense, equals(500000));
+        expect(budgetProvider.remainingBudget, equals(500000));
+        expect(budgetProvider.usagePercentage, closeTo(50.0, 0.1));
+        expect(budgetProvider.overallStatus, equals(BudgetStatus.safe));
 
-      // Tambah pengeluaran Rp 350.000 (Total 850.000 -> 85% -> WASPADA/NEAR LIMIT)
-      await txRepo.insertTransaction(Transaction(
-        userId: userId,
-        category: 'Makanan',
-        amount: 350000,
-        type: TransactionType.expense,
-        date: now,
-      ));
+        // Tambah pengeluaran Rp 350.000 (Total 850.000 -> 85% -> WASPADA/NEAR LIMIT)
+        await txRepo.insertTransaction(
+          Transaction(
+            userId: userId,
+            category: 'Makanan',
+            amount: 350000,
+            type: TransactionType.expense,
+            date: now,
+          ),
+        );
 
-      await budgetProvider.loadCurrentMonthBudgets(userId);
-      expect(budgetProvider.totalActualExpense, equals(850000));
-      expect(budgetProvider.isNearLimit, isTrue);
-      expect(budgetProvider.overallStatus, equals(BudgetStatus.warning));
+        await budgetProvider.loadCurrentMonthBudgets(userId);
+        expect(budgetProvider.totalActualExpense, equals(850000));
+        expect(budgetProvider.isNearLimit, isTrue);
+        expect(budgetProvider.overallStatus, equals(BudgetStatus.warning));
 
-      // Tambah pengeluaran Rp 250.000 (Total 1.100.000 -> 110% -> BAHAYA/OVER BUDGET)
-      await txRepo.insertTransaction(Transaction(
-        userId: userId,
-        category: 'Makanan',
-        amount: 250000,
-        type: TransactionType.expense,
-        date: now,
-      ));
+        // Tambah pengeluaran Rp 250.000 (Total 1.100.000 -> 110% -> BAHAYA/OVER BUDGET)
+        await txRepo.insertTransaction(
+          Transaction(
+            userId: userId,
+            category: 'Makanan',
+            amount: 250000,
+            type: TransactionType.expense,
+            date: now,
+          ),
+        );
 
-      await budgetProvider.loadCurrentMonthBudgets(userId);
-      expect(budgetProvider.isOverBudget, isTrue);
-      expect(budgetProvider.overallStatus, equals(BudgetStatus.danger));
-      expect(budgetProvider.remainingBudget, equals(-100000.0));
-    });
+        await budgetProvider.loadCurrentMonthBudgets(userId);
+        expect(budgetProvider.isOverBudget, isTrue);
+        expect(budgetProvider.overallStatus, equals(BudgetStatus.danger));
+        expect(budgetProvider.remainingBudget, equals(-100000.0));
+      },
+    );
 
     // ── 8. Penyimpanan Lokal ──
-    test('8. Pemeriksaan Persistensi Preferensi Tema & Sesi di SharedPreferences', () async {
-      // Simpan preferensi tema
-      await themeProvider.setThemeMode(ThemeMode.dark);
-      expect(themeProvider.themeMode, equals(ThemeMode.dark));
+    test(
+      '8. Pemeriksaan Persistensi Preferensi Tema & Sesi di SharedPreferences',
+      () async {
+        // Simpan preferensi tema
+        await themeProvider.setThemeMode(ThemeMode.dark);
+        expect(themeProvider.themeMode, equals(ThemeMode.dark));
 
-      // Baca dari SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getString('app_theme_mode'), equals('dark'));
+        // Baca dari SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        expect(prefs.getString('app_theme_mode'), equals('dark'));
 
-      // Muat ulang provider baru
-      final newThemeProvider = ThemeProvider();
-      await newThemeProvider.loadThemeMode();
-      expect(newThemeProvider.themeMode, equals(ThemeMode.dark));
-    });
+        // Muat ulang provider baru
+        final newThemeProvider = ThemeProvider();
+        await newThemeProvider.loadThemeMode();
+        expect(newThemeProvider.themeMode, equals(ThemeMode.dark));
+      },
+    );
 
     // ── 9. Perpindahan Orientasi Layar (Responsivitas) ──
-    testWidgets('9. Pemeriksaan Orientasi Layar (Portrait & Landscape tanpa Overflow)', (tester) async {
-      await authProvider.register(
-        name: 'Dewi Lestari',
-        email: 'dewi@example.com',
-        password: 'password123',
-        confirmPassword: 'password123',
-      );
-      final userId = authProvider.userId!;
+    testWidgets(
+      '9. Pemeriksaan Orientasi Layar (Portrait & Landscape tanpa Overflow)',
+      (tester) async {
+        await authProvider.register(
+          name: 'Dewi Lestari',
+          email: 'dewi@example.com',
+          password: 'password123',
+          confirmPassword: 'password123',
+        );
+        final userId = authProvider.userId!;
 
-      // 1. Uji Portrait (400 x 800)
-      tester.view.physicalSize = const Size(400, 800);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
+        // 1. Uji Portrait (400 x 800)
+        tester.view.physicalSize = const Size(400, 800);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
 
-      await tester.pumpWidget(buildApp(home: const HomeScreen()));
-      await tester.pumpAndSettle();
-      expect(find.byType(HomeScreen), findsOneWidget);
+        await tester.pumpWidget(buildApp(home: const HomeScreen()));
+        await tester.pumpAndSettle();
+        expect(find.byType(HomeScreen), findsOneWidget);
 
-      // 2. Uji Landscape (800 x 400) pada HomeScreen
-      tester.view.physicalSize = const Size(800, 400);
-      await tester.pumpAndSettle();
-      expect(find.byType(HomeScreen), findsOneWidget);
+        // 2. Uji Landscape (800 x 400) pada HomeScreen
+        tester.view.physicalSize = const Size(800, 400);
+        await tester.pumpAndSettle();
+        expect(find.byType(HomeScreen), findsOneWidget);
 
-      // 3. Uji Landscape pada TransactionFormScreen
-      await tester.pumpWidget(buildApp(home: TransactionFormScreen(userId: userId)));
-      await tester.pumpAndSettle();
-      expect(find.byType(TransactionFormScreen), findsOneWidget);
+        // 3. Uji Landscape pada TransactionFormScreen
+        await tester.pumpWidget(
+          buildApp(home: TransactionFormScreen(userId: userId)),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byType(TransactionFormScreen), findsOneWidget);
 
-      // 4. Uji Landscape pada ProfileScreen
-      await tester.pumpWidget(buildApp(home: const ProfileScreen()));
-      await tester.pumpAndSettle();
-      expect(find.byType(ProfileScreen), findsOneWidget);
-    });
+        // 4. Uji Landscape pada ProfileScreen
+        await tester.pumpWidget(buildApp(home: const ProfileScreen()));
+        await tester.pumpAndSettle();
+        expect(find.byType(ProfileScreen), findsOneWidget);
+      },
+    );
 
     // ── 10. Validasi Input & Error Handling ──
-    testWidgets('10. Validasi Formulir Transaksi & Penanganan Error Input', (tester) async {
-      await tester.pumpWidget(buildApp(home: const TransactionFormScreen(userId: 1)));
+    testWidgets('10. Validasi Formulir Transaksi & Penanganan Error Input', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildApp(home: const TransactionFormScreen(userId: 1)),
+      );
       await tester.pumpAndSettle();
 
       final simpanButton = find.byType(FilledButton).first;
@@ -687,41 +749,44 @@ void main() {
     });
 
     // ── 11. Pemisahan Data Antar Pengguna ──
-    test('11. Pemisahan Data (Data Isolation) Antara Pengguna A dan Pengguna B', () async {
-      const userA = 501;
-      const userB = 502;
+    test(
+      '11. Pemisahan Data (Data Isolation) Antara Pengguna A dan Pengguna B',
+      () async {
+        const userA = 501;
+        const userB = 502;
 
-      // User A memiliki transaksi pemasukan Rp 10.000.000
-      await txProvider.addTransaction(
-        userId: userA,
-        category: 'Gaji',
-        amount: 10000000,
-        type: TransactionType.income,
-        date: DateTime.now(),
-      );
+        // User A memiliki transaksi pemasukan Rp 10.000.000
+        await txProvider.addTransaction(
+          userId: userA,
+          category: 'Gaji',
+          amount: 10000000,
+          type: TransactionType.income,
+          date: DateTime.now(),
+        );
 
-      // User B memiliki transaksi pengeluaran Rp 200.000
-      await txProvider.addTransaction(
-        userId: userB,
-        category: 'Makanan',
-        amount: 200000,
-        type: TransactionType.expense,
-        date: DateTime.now(),
-      );
+        // User B memiliki transaksi pengeluaran Rp 200.000
+        await txProvider.addTransaction(
+          userId: userB,
+          category: 'Makanan',
+          amount: 200000,
+          type: TransactionType.expense,
+          date: DateTime.now(),
+        );
 
-      // Load data User A
-      await txProvider.loadDashboardData(userA);
-      expect(txProvider.totalIncome, equals(10000000));
-      expect(txProvider.totalExpense, equals(0));
-      expect(txProvider.transactions.length, equals(1));
-      expect(txProvider.transactions.first.userId, equals(userA));
+        // Load data User A
+        await txProvider.loadDashboardData(userA);
+        expect(txProvider.totalIncome, equals(10000000));
+        expect(txProvider.totalExpense, equals(0));
+        expect(txProvider.transactions.length, equals(1));
+        expect(txProvider.transactions.first.userId, equals(userA));
 
-      // Load data User B -> Tidak boleh ada data User A yang bocor
-      await txProvider.loadDashboardData(userB);
-      expect(txProvider.totalIncome, equals(0));
-      expect(txProvider.totalExpense, equals(200000));
-      expect(txProvider.transactions.length, equals(1));
-      expect(txProvider.transactions.first.userId, equals(userB));
-    });
+        // Load data User B -> Tidak boleh ada data User A yang bocor
+        await txProvider.loadDashboardData(userB);
+        expect(txProvider.totalIncome, equals(0));
+        expect(txProvider.totalExpense, equals(200000));
+        expect(txProvider.transactions.length, equals(1));
+        expect(txProvider.transactions.first.userId, equals(userB));
+      },
+    );
   });
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import '../models/user.dart';
 import '../repositories/user_repository.dart';
 
@@ -15,7 +16,7 @@ class UserProvider extends ChangeNotifier {
   String? _errorMessage;
 
   UserProvider({UserRepository? repository})
-      : _repository = repository ?? UserRepository();
+    : _repository = repository ?? UserRepository();
 
   // ──────────── GETTERS ────────────
 
@@ -120,4 +121,3 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
-

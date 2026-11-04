@@ -6,9 +6,9 @@ class Budget {
   final int? id;
   final int userId;
   final String category;
-  final double amount;       // Batas anggaran
-  final int month;           // 1-12
-  final int year;            // e.g. 2026
+  final double amount; // Batas anggaran
+  final int month; // 1-12
+  final int year; // e.g. 2026
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -21,8 +21,8 @@ class Budget {
     required this.year,
     DateTime? createdAt,
     DateTime? updatedAt,
-  })  : createdAt = createdAt ?? DateTime.now(),
-        updatedAt = updatedAt ?? DateTime.now();
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   /// Konversi dari Map (hasil query SQLite) ke objek Budget.
   factory Budget.fromMap(Map<String, dynamic> map) {
@@ -90,4 +90,3 @@ class Budget {
   @override
   int get hashCode => id.hashCode;
 }
-

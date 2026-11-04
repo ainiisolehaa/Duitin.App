@@ -1,4 +1,5 @@
 import 'package:sqflite/sqflite.dart';
+
 import '../database/database_helper.dart';
 import '../models/budget.dart';
 
@@ -7,7 +8,7 @@ class BudgetRepository {
   final DatabaseHelper _dbHelper;
 
   BudgetRepository({DatabaseHelper? dbHelper})
-      : _dbHelper = dbHelper ?? DatabaseHelper.instance;
+    : _dbHelper = dbHelper ?? DatabaseHelper.instance;
 
   // ──────────── CREATE ────────────
 
@@ -27,11 +28,7 @@ class BudgetRepository {
   /// Ambil budget berdasarkan ID.
   Future<Budget?> getBudgetById(int id) async {
     final db = await _dbHelper.database;
-    final maps = await db.query(
-      'budgets',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    final maps = await db.query('budgets', where: 'id = ?', whereArgs: [id]);
     if (maps.isEmpty) return null;
     return Budget.fromMap(maps.first);
   }
@@ -114,11 +111,7 @@ class BudgetRepository {
   /// Hapus budget berdasarkan ID.
   Future<int> deleteBudget(int id) async {
     final db = await _dbHelper.database;
-    return await db.delete(
-      'budgets',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete('budgets', where: 'id = ?', whereArgs: [id]);
   }
 
   /// Hapus semua budget milik user pada bulan/tahun tertentu.
@@ -145,4 +138,3 @@ class BudgetRepository {
     return Sqflite.firstIntValue(result) ?? 0;
   }
 }
-

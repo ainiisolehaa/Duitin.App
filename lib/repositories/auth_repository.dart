@@ -1,5 +1,7 @@
 import 'dart:convert';
+
 import 'package:crypto/crypto.dart';
+
 import '../database/database_helper.dart';
 import '../models/user.dart';
 
@@ -20,7 +22,7 @@ class AuthRepository {
   final DatabaseHelper _dbHelper;
 
   AuthRepository({DatabaseHelper? dbHelper})
-      : _dbHelper = dbHelper ?? DatabaseHelper.instance;
+    : _dbHelper = dbHelper ?? DatabaseHelper.instance;
 
   /// Hash password menggunakan SHA-256.
   String _hashPassword(String password) {
@@ -103,7 +105,8 @@ class AuthRepository {
       if (results.isEmpty) {
         return AuthResult(
           success: false,
-          errorMessage: 'Email belum terdaftar. Silakan daftar terlebih dahulu.',
+          errorMessage:
+              'Email belum terdaftar. Silakan daftar terlebih dahulu.',
         );
       }
 
@@ -130,11 +133,7 @@ class AuthRepository {
   /// Ambil user berdasarkan ID (untuk restore sesi).
   Future<User?> getUserById(int id) async {
     final db = await _dbHelper.database;
-    final results = await db.query(
-      'users',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    final results = await db.query('users', where: 'id = ?', whereArgs: [id]);
     if (results.isEmpty) return null;
     return User.fromMap(results.first);
   }
@@ -155,4 +154,3 @@ class AuthRepository {
     }
   }
 }
-

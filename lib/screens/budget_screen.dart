@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../models/budget_detail.dart';
 import '../providers/budget_provider.dart';
 import '../utils/format_helper.dart';
@@ -65,22 +66,38 @@ class _BudgetScreenState extends State<BudgetScreen> {
     if (confirm != true || !mounted) return;
 
     final provider = context.read<BudgetProvider>();
-    await provider.deleteBudget(
+    final success = await provider.deleteBudget(
       item.budget.id!,
       userId: widget.userId,
       month: provider.selectedMonth,
       year: provider.selectedYear,
     );
 
-    if (mounted) {
+    if (!mounted) return;
+
+    if (!success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Anggaran "${item.category}" berhasil dihapus'),
+          content: Text(
+            provider.errorMessage ?? 'Anggaran gagal dihapus. Coba lagi.',
+          ),
+          backgroundColor: Colors.red.shade700,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
+      return;
     }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Anggaran "${item.category}" berhasil dihapus'),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 
   @override
@@ -90,7 +107,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        title: const Text('Anggaran Bulanan', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Anggaran Bulanan',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
       ),
       body: Consumer<BudgetProvider>(
@@ -120,12 +140,18 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 children: [
                   // ── 1. Navigasi Pilihan Bulan ──
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+                      color: theme.colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.35),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
+                        color: theme.colorScheme.outlineVariant.withValues(
+                          alpha: 0.4,
+                        ),
                       ),
                     ),
                     child: Row(
@@ -134,7 +160,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
                         IconButton(
                           icon: const Icon(Icons.chevron_left_rounded),
                           tooltip: 'Bulan Sebelumnya',
-                          onPressed: () => budgetProvider.changeMonth(-1, widget.userId),
+                          onPressed: () =>
+                              budgetProvider.changeMonth(-1, widget.userId),
                         ),
                         Row(
                           children: [
@@ -156,7 +183,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
                         IconButton(
                           icon: const Icon(Icons.chevron_right_rounded),
                           tooltip: 'Bulan Selanjutnya',
-                          onPressed: () => budgetProvider.changeMonth(1, widget.userId),
+                          onPressed: () =>
+                              budgetProvider.changeMonth(1, widget.userId),
                         ),
                       ],
                     ),
@@ -174,18 +202,21 @@ class _BudgetScreenState extends State<BudgetScreen> {
                         color: isOver
                             ? Colors.red.shade300
                             : isWarning
-                                ? Colors.orange.shade300
-                                : theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+                            ? Colors.orange.shade300
+                            : theme.colorScheme.outlineVariant.withValues(
+                                alpha: 0.5,
+                              ),
                         width: isOver || isWarning ? 1.5 : 1.0,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: (isOver
-                                  ? Colors.red
-                                  : isWarning
+                          color:
+                              (isOver
+                                      ? Colors.red
+                                      : isWarning
                                       ? Colors.orange
                                       : theme.colorScheme.primary)
-                              .withValues(alpha: 0.06),
+                                  .withValues(alpha: 0.06),
                           blurRadius: 16,
                           offset: const Offset(0, 6),
                         ),
@@ -203,18 +234,24 @@ class _BudgetScreenState extends State<BudgetScreen> {
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                                color: theme.colorScheme.onSurface.withValues(
+                                  alpha: 0.7,
+                                ),
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
-                                color: (isOver
-                                        ? Colors.red
-                                        : isWarning
+                                color:
+                                    (isOver
+                                            ? Colors.red
+                                            : isWarning
                                             ? Colors.orange
                                             : Colors.teal)
-                                    .withValues(alpha: 0.15),
+                                        .withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Row(
@@ -224,30 +261,30 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                     isOver
                                         ? Icons.warning_rounded
                                         : isWarning
-                                            ? Icons.priority_high_rounded
-                                            : Icons.check_circle_rounded,
+                                        ? Icons.priority_high_rounded
+                                        : Icons.check_circle_rounded,
                                     size: 14,
                                     color: isOver
                                         ? Colors.red.shade700
                                         : isWarning
-                                            ? Colors.orange.shade800
-                                            : Colors.teal.shade700,
+                                        ? Colors.orange.shade800
+                                        : Colors.teal.shade700,
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
                                     isOver
                                         ? 'Melewati Batas'
                                         : isWarning
-                                            ? 'Mendekati Batas'
-                                            : 'Aman',
+                                        ? 'Mendekati Batas'
+                                        : 'Aman',
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.bold,
                                       color: isOver
                                           ? Colors.red.shade700
                                           : isWarning
-                                              ? Colors.orange.shade800
-                                              : Colors.teal.shade700,
+                                          ? Colors.orange.shade800
+                                          : Colors.teal.shade700,
                                     ),
                                   ),
                                 ],
@@ -280,8 +317,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
                               isOver
                                   ? Colors.red.shade600
                                   : isWarning
-                                      ? Colors.orange.shade600
-                                      : Colors.teal.shade600,
+                                  ? Colors.orange.shade600
+                                  : Colors.teal.shade600,
                             ),
                           ),
                         ),
@@ -298,7 +335,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                   'Terpakai (${percentage.toStringAsFixed(1)}%)',
                                   style: TextStyle(
                                     fontSize: 11,
-                                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                                    color: theme.colorScheme.onSurface
+                                        .withValues(alpha: 0.6),
                                   ),
                                 ),
                                 const SizedBox(height: 2),
@@ -307,7 +345,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
-                                    color: isOver ? Colors.red.shade700 : theme.colorScheme.onSurface,
+                                    color: isOver
+                                        ? Colors.red.shade700
+                                        : theme.colorScheme.onSurface,
                                   ),
                                 ),
                               ],
@@ -316,10 +356,13 @@ class _BudgetScreenState extends State<BudgetScreen> {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  isOver ? 'Kelebihan Anggaran' : 'Sisa Anggaran',
+                                  isOver
+                                      ? 'Kelebihan Anggaran'
+                                      : 'Sisa Anggaran',
                                   style: TextStyle(
                                     fontSize: 11,
-                                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                                    color: theme.colorScheme.onSurface
+                                        .withValues(alpha: 0.6),
                                   ),
                                 ),
                                 const SizedBox(height: 2),
@@ -328,7 +371,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
-                                    color: isOver ? Colors.red.shade700 : Colors.green.shade700,
+                                    color: isOver
+                                        ? Colors.red.shade700
+                                        : Colors.green.shade700,
                                   ),
                                 ),
                               ],
@@ -345,7 +390,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
                     if (isOver) ...[
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.red.shade50,
                           borderRadius: BorderRadius.circular(14),
@@ -354,7 +402,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.error_outline_rounded, color: Colors.red.shade700, size: 22),
+                            Icon(
+                              Icons.error_outline_rounded,
+                              color: Colors.red.shade700,
+                              size: 22,
+                            ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
@@ -386,7 +438,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
                     ] else if (isWarning) ...[
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.orange.shade50,
                           borderRadius: BorderRadius.circular(14),
@@ -395,7 +450,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(Icons.warning_amber_rounded, color: Colors.orange.shade800, size: 22),
+                            Icon(
+                              Icons.warning_amber_rounded,
+                              color: Colors.orange.shade800,
+                              size: 22,
+                            ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
@@ -427,7 +486,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
                     ] else ...[
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.teal.shade50,
                           borderRadius: BorderRadius.circular(14),
@@ -435,7 +497,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.lightbulb_outline_rounded, color: Colors.teal.shade800, size: 20),
+                            Icon(
+                              Icons.lightbulb_outline_rounded,
+                              color: Colors.teal.shade800,
+                              size: 20,
+                            ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
@@ -468,7 +534,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
                           const SizedBox(width: 8),
                           const Text(
                             'Pos Anggaran Kategori',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
@@ -484,12 +553,18 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   if (categoryDetails.isEmpty) ...[
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 20),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 36,
+                        horizontal: 20,
+                      ),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.25),
+                        color: theme.colorScheme.surfaceContainerHighest
+                            .withValues(alpha: 0.25),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
+                          color: theme.colorScheme.outlineVariant.withValues(
+                            alpha: 0.4,
+                          ),
                         ),
                       ),
                       child: Column(
@@ -497,12 +572,17 @@ class _BudgetScreenState extends State<BudgetScreen> {
                           Icon(
                             Icons.savings_outlined,
                             size: 48,
-                            color: theme.colorScheme.primary.withValues(alpha: 0.6),
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.6,
+                            ),
                           ),
                           const SizedBox(height: 12),
                           const Text(
                             'Belum ada anggaran untuk bulan ini',
-                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const SizedBox(height: 6),
                           Text(
@@ -510,7 +590,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 12,
-                              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.6,
+                              ),
                               height: 1.4,
                             ),
                           ),
@@ -531,7 +613,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
                       separatorBuilder: (_, _) => const SizedBox(height: 10),
                       itemBuilder: (context, i) {
                         final item = categoryDetails[i];
-                        final catColor = FormatHelper.getCategoryColor(item.category);
+                        final catColor = FormatHelper.getCategoryColor(
+                          item.category,
+                        );
                         final itemStatus = item.status;
 
                         return Container(
@@ -543,8 +627,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
                               color: itemStatus == BudgetStatus.danger
                                   ? Colors.red.shade300
                                   : itemStatus == BudgetStatus.warning
-                                      ? Colors.orange.shade300
-                                      : theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
+                                  ? Colors.orange.shade300
+                                  : theme.colorScheme.outlineVariant.withValues(
+                                      alpha: 0.4,
+                                    ),
                             ),
                           ),
                           child: Column(
@@ -559,7 +645,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Icon(
-                                      FormatHelper.getCategoryIcon(item.category),
+                                      FormatHelper.getCategoryIcon(
+                                        item.category,
+                                      ),
                                       size: 22,
                                       color: catColor,
                                     ),
@@ -567,7 +655,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           item.category,
@@ -584,11 +673,14 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                           style: TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w600,
-                                            color: itemStatus == BudgetStatus.danger
+                                            color:
+                                                itemStatus ==
+                                                    BudgetStatus.danger
                                                 ? Colors.red.shade700
-                                                : itemStatus == BudgetStatus.warning
-                                                    ? Colors.orange.shade800
-                                                    : Colors.teal.shade700,
+                                                : itemStatus ==
+                                                      BudgetStatus.warning
+                                                ? Colors.orange.shade800
+                                                : Colors.teal.shade700,
                                           ),
                                         ),
                                       ],
@@ -621,9 +713,18 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                         value: 'delete',
                                         child: Row(
                                           children: [
-                                            Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red),
+                                            Icon(
+                                              Icons.delete_outline_rounded,
+                                              size: 18,
+                                              color: Colors.red,
+                                            ),
                                             SizedBox(width: 8),
-                                            Text('Hapus Anggaran', style: TextStyle(color: Colors.red)),
+                                            Text(
+                                              'Hapus Anggaran',
+                                              style: TextStyle(
+                                                color: Colors.red,
+                                              ),
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -645,8 +746,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                     itemStatus == BudgetStatus.danger
                                         ? Colors.red.shade600
                                         : itemStatus == BudgetStatus.warning
-                                            ? Colors.orange.shade600
-                                            : catColor,
+                                        ? Colors.orange.shade600
+                                        : catColor,
                                   ),
                                 ),
                               ),
@@ -654,7 +755,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
 
                               // Nominal Real vs Budget
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     '${item.percentage.toStringAsFixed(0)}% terpakai',
@@ -663,7 +765,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                       fontWeight: FontWeight.bold,
                                       color: itemStatus == BudgetStatus.danger
                                           ? Colors.red.shade700
-                                          : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                                          : theme.colorScheme.onSurface
+                                                .withValues(alpha: 0.7),
                                     ),
                                   ),
                                   Text(
@@ -671,7 +774,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
-                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                                      color: theme.colorScheme.onSurface
+                                          .withValues(alpha: 0.8),
                                     ),
                                   ),
                                 ],
@@ -692,9 +796,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openAddBudget(),
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Atur Anggaran', style: TextStyle(fontWeight: FontWeight.bold)),
+        label: const Text(
+          'Atur Anggaran',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }
 }
-

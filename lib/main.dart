@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
+
 import 'providers/auth_provider.dart';
 import 'providers/user_provider.dart';
 import 'providers/transaction_provider.dart';
@@ -8,10 +9,20 @@ import 'providers/budget_provider.dart';
 import 'providers/statistics_provider.dart';
 import 'providers/theme_provider.dart';
 import 'screens/splash_screen.dart';
+import 'utils/data_seeder.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('id_ID', null);
+
+  // Siapkan akun & data demo saat pertama kali aplikasi dijalankan.
+  // Dibungkus try/catch agar kegagalan database tidak membuat app crash.
+  try {
+    await DataSeeder.seedStudentData();
+  } catch (e) {
+    debugPrint('Gagal menyiapkan data demo: $e');
+  }
+
   runApp(const DuitinApp());
 }
 

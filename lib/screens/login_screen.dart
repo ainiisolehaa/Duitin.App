@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../providers/auth_provider.dart';
 import '../utils/data_seeder.dart';
 import 'register_screen.dart';
@@ -63,8 +64,20 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _navigateToRegister() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const RegisterScreen()),
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => const RegisterScreen()));
+  }
+
+  /// Isi form login dengan akun demo bawaan aplikasi.
+  void _fillDemoAccount() {
+    _emailController.text = DataSeeder.studentEmail;
+    _passwordController.text = DataSeeder.studentPassword;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Akun demo terisi. Tekan tombol "Masuk".'),
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 
@@ -213,10 +226,16 @@ class _LoginScreenState extends State<LoginScreen> {
                           );
                         },
                       ),
+                      const SizedBox(height: 8),
+                      TextButton.icon(
+                        onPressed: _fillDemoAccount,
+                        icon: const Icon(Icons.science_outlined, size: 18),
+                        label: const Text('Gunakan Akun Demo'),
+                      ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
                 // ── Link ke Register ──
                 Row(
@@ -248,4 +267,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-

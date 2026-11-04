@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+
 import '../models/transaction.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/budget_provider.dart';
@@ -95,7 +96,9 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
       _selectedTime = TimeOfDay.now();
       _selectedPresetCategory = _expenseCategories.first;
       _isCustomCategory = false;
-      _categoryController = TextEditingController(text: _selectedPresetCategory);
+      _categoryController = TextEditingController(
+        text: _selectedPresetCategory,
+      );
     }
   }
 
@@ -178,11 +181,14 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
       return;
     }
 
-    final note = _noteController.text.trim().isEmpty ? null : _noteController.text.trim();
+    final note = _noteController.text.trim().isEmpty
+        ? null
+        : _noteController.text.trim();
 
     final txProvider = context.read<TransactionProvider>();
     final budgetProvider = context.read<BudgetProvider>();
 
+    final bool success;
     if (widget.isEditing) {
       final updatedTx = widget.transaction!.copyWith(
         category: category,
@@ -192,9 +198,9 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
         note: note,
         updatedAt: DateTime.now(),
       );
-      await txProvider.updateTransaction(updatedTx);
+      success = await txProvider.updateTransaction(updatedTx);
     } else {
-      await txProvider.addTransaction(
+      success = await txProvider.addTransaction(
         userId: widget.userId,
         category: category,
         amount: amount,
@@ -204,23 +210,39 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
       );
     }
 
-    // Perbarui juga data anggaran agar perhitungan langsung sinkron
-    await budgetProvider.loadCurrentMonthBudgets(widget.userId);
-
-    if (mounted) {
+    if (!success) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            widget.isEditing
-                ? 'Transaksi "$category" berhasil diperbarui!'
-                : '${_type == TransactionType.income ? "Pemasukan" : "Pengeluaran"} berhasil dicatat!',
+            txProvider.errorMessage ?? 'Transaksi gagal disimpan. Coba lagi.',
           ),
+          backgroundColor: Colors.red.shade700,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
-      Navigator.pop(context, true);
+      return;
     }
+
+    // Perbarui juga data anggaran agar perhitungan langsung sinkron
+    await budgetProvider.loadCurrentMonthBudgets(widget.userId);
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          widget.isEditing
+              ? 'Transaksi "$category" berhasil diperbarui!'
+              : '${_type == TransactionType.income ? "Pemasukan" : "Pengeluaran"} berhasil dicatat!',
+        ),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
+    Navigator.pop(context, true);
   }
 
   @override
@@ -289,7 +311,10 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   autofocus: !widget.isEditing,
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
                   decoration: InputDecoration(
                     prefixText: 'Rp ',
                     prefixStyle: TextStyle(
@@ -300,7 +325,9 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                           : Colors.green.shade700,
                     ),
                     hintText: '0',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     helperText: 'Masukkan jumlah uang tanpa titik atau koma',
                   ),
                   validator: (val) {
@@ -330,7 +357,8 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                   spacing: 8,
                   runSpacing: 8,
                   children: categories.map((cat) {
-                    final isSelected = _selectedPresetCategory == cat && !_isCustomCategory;
+                    final isSelected =
+                        _selectedPresetCategory == cat && !_isCustomCategory;
                     final color = FormatHelper.getCategoryColor(cat);
 
                     return ChoiceChip(
@@ -343,8 +371,12 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                       selected: isSelected,
                       selectedColor: color,
                       labelStyle: TextStyle(
-                        color: isSelected ? Colors.white : theme.colorScheme.onSurface,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        color: isSelected
+                            ? Colors.white
+                            : theme.colorScheme.onSurface,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                       onSelected: (_) {
                         setState(() {
@@ -371,7 +403,9 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                       labelText: 'Nama Kategori Kustom',
                       hintText: 'Contoh: Langganan Spotify, Servis Motor',
                       prefixIcon: const Icon(Icons.edit_note_rounded),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
                     validator: (val) {
                       if (val == null || val.trim().isEmpty) {
@@ -399,7 +433,10 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                       flex: 3,
                       child: OutlinedButton.icon(
                         onPressed: _pickDate,
-                        icon: const Icon(Icons.calendar_today_rounded, size: 18),
+                        icon: const Icon(
+                          Icons.calendar_today_rounded,
+                          size: 18,
+                        ),
                         label: Text(FormatHelper.formatDate(_selectedDate)),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
@@ -445,7 +482,9 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                   decoration: InputDecoration(
                     hintText: 'Tuliskan catatan tambahan (contoh: Makan siang di warteg)',
                     prefixIcon: const Icon(Icons.description_outlined),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 28),
@@ -473,7 +512,9 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                                 ),
                               )
                             : Text(
-                                widget.isEditing ? 'Simpan Perubahan' : 'Catat Transaksi',
+                                widget.isEditing
+                                    ? 'Simpan Perubahan'
+                                    : 'Catat Transaksi',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -491,4 +532,3 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
     );
   }
 }
-

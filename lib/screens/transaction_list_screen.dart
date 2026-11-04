@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../models/transaction.dart';
 import '../providers/transaction_provider.dart';
 import '../utils/format_helper.dart';
@@ -98,7 +99,10 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
         lastDate: DateTime(2100),
         initialDateRange: _startDate != null && _endDate != null
             ? DateTimeRange(start: _startDate!, end: _endDate!)
-            : DateTimeRange(start: now.subtract(const Duration(days: 7)), end: now),
+            : DateTimeRange(
+                start: now.subtract(const Duration(days: 7)),
+                end: now,
+              ),
       );
 
       if (pickedRange != null) {
@@ -145,10 +149,8 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (_) => TransactionDetailScreen(
-          transaction: tx,
-          userId: widget.userId,
-        ),
+        builder: (_) =>
+            TransactionDetailScreen(transaction: tx, userId: widget.userId),
       ),
     );
 
@@ -184,7 +186,10 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        title: const Text('Riwayat Transaksi', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Riwayat Transaksi',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         actions: [
           if (_hasActiveFilter)
@@ -236,7 +241,10 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
               children: [
                 // ── Panel Pencarian & Filter ──
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surface,
                     boxShadow: [
@@ -255,20 +263,32 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                         controller: _searchController,
                         decoration: InputDecoration(
                           hintText: 'Cari transaksi berdasarkan kategori atau catatan...',
-                          prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                          prefixIcon: const Icon(
+                            Icons.search_rounded,
+                            size: 20,
+                          ),
                           suffixIcon: _searchController.text.isNotEmpty
                               ? IconButton(
-                                  icon: const Icon(Icons.clear_rounded, size: 18),
+                                  icon: const Icon(
+                                    Icons.clear_rounded,
+                                    size: 18,
+                                  ),
                                   onPressed: () {
                                     _searchController.clear();
                                     _applyFilter();
                                   },
                                 )
                               : null,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
                           filled: true,
-                          fillColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                          fillColor: theme.colorScheme.surfaceContainerHighest
+                              .withValues(alpha: 0.3),
                         ),
                         onChanged: (_) => _applyFilter(),
                       ),
@@ -288,24 +308,36 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                           const SizedBox(width: 8),
                           FilterChip(
                             label: const Text('Pengeluaran'),
-                            avatar: Icon(Icons.arrow_upward_rounded, size: 16, color: Colors.red.shade700),
+                            avatar: Icon(
+                              Icons.arrow_upward_rounded,
+                              size: 16,
+                              color: Colors.red.shade700,
+                            ),
                             selected: _selectedType == TransactionType.expense,
                             selectedColor: Colors.red.withValues(alpha: 0.15),
                             checkmarkColor: Colors.red.shade700,
                             onSelected: (_) {
-                              setState(() => _selectedType = TransactionType.expense);
+                              setState(
+                                () => _selectedType = TransactionType.expense,
+                              );
                               _applyFilter();
                             },
                           ),
                           const SizedBox(width: 8),
                           FilterChip(
                             label: const Text('Pemasukan'),
-                            avatar: Icon(Icons.arrow_downward_rounded, size: 16, color: Colors.green.shade700),
+                            avatar: Icon(
+                              Icons.arrow_downward_rounded,
+                              size: 16,
+                              color: Colors.green.shade700,
+                            ),
                             selected: _selectedType == TransactionType.income,
                             selectedColor: Colors.green.withValues(alpha: 0.15),
                             checkmarkColor: Colors.green.shade700,
                             onSelected: (_) {
-                              setState(() => _selectedType = TransactionType.income);
+                              setState(
+                                () => _selectedType = TransactionType.income,
+                              );
                               _applyFilter();
                             },
                           ),
@@ -326,7 +358,9 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
 
                             return ChoiceChip(
                               label: Text(
-                                preset == DateFilterPreset.custom && _startDate != null && _endDate != null
+                                preset == DateFilterPreset.custom &&
+                                        _startDate != null &&
+                                        _endDate != null
                                     ? '${FormatHelper.formatDate(_startDate!)} - ${FormatHelper.formatDate(_endDate!)}'
                                     : preset.label,
                               ),
@@ -373,14 +407,22 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
 
                 // ── Ringkasan Hasil Filter ──
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                  color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 10,
+                  ),
+                  color: theme.colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.4,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         '${transactions.length} Transaksi',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
                       ),
                       Row(
                         children: [
@@ -403,7 +445,10 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                           ),
                           const SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: theme.colorScheme.surface,
                               borderRadius: BorderRadius.circular(6),
@@ -413,7 +458,9 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
-                                color: filteredNet >= 0 ? Colors.green.shade800 : Colors.red.shade800,
+                                color: filteredNet >= 0
+                                    ? Colors.green.shade800
+                                    : Colors.red.shade800,
                               ),
                             ),
                           ),
@@ -428,140 +475,173 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                   child: txProvider.isFilterLoading
                       ? const Center(child: CircularProgressIndicator())
                       : transactions.isEmpty
-                          ? Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(28),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.search_off_rounded,
-                                      size: 54,
-                                      color: theme.colorScheme.onSurface.withValues(alpha: 0.35),
-                                    ),
-                                    const SizedBox(height: 14),
-                                    const Text(
-                                      'Tidak ada transaksi yang cocok',
-                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      _hasActiveFilter
-                                          ? 'Coba sesuaikan kata kunci pencarian, jenis transaksi, kategori, atau rentang tanggal.'
-                                          : 'Belum ada transaksi yang tercatat.',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                                      ),
-                                    ),
-                                    if (_hasActiveFilter) ...[
-                                      const SizedBox(height: 16),
-                                      FilledButton.tonalIcon(
-                                        onPressed: _resetFilter,
-                                        icon: const Icon(Icons.restart_alt_rounded, size: 18),
-                                        label: const Text('Reset Filter'),
-                                      ),
-                                    ],
-                                  ],
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(28),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.search_off_rounded,
+                                  size: 54,
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.35,
+                                  ),
                                 ),
-                              ),
-                            )
-                          : ListView.separated(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              itemCount: transactions.length,
-                              separatorBuilder: (_, _) => const SizedBox(height: 8),
-                              itemBuilder: (context, index) {
-                                final tx = transactions[index];
-                                final isIncome = tx.isIncome;
-                                final categoryColor = FormatHelper.getCategoryColor(tx.category);
+                                const SizedBox(height: 14),
+                                const Text(
+                                  'Tidak ada transaksi yang cocok',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  _hasActiveFilter
+                                      ? 'Coba sesuaikan kata kunci pencarian, jenis transaksi, kategori, atau rentang tanggal.'
+                                      : 'Belum ada transaksi yang tercatat.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: theme.colorScheme.onSurface
+                                        .withValues(alpha: 0.6),
+                                  ),
+                                ),
+                                if (_hasActiveFilter) ...[
+                                  const SizedBox(height: 16),
+                                  FilledButton.tonalIcon(
+                                    onPressed: _resetFilter,
+                                    icon: const Icon(
+                                      Icons.restart_alt_rounded,
+                                      size: 18,
+                                    ),
+                                    label: const Text('Reset Filter'),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                        )
+                      : ListView.separated(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          itemCount: transactions.length,
+                          separatorBuilder: (_, _) => const SizedBox(height: 8),
+                          itemBuilder: (context, index) {
+                            final tx = transactions[index];
+                            final isIncome = tx.isIncome;
+                            final categoryColor = FormatHelper.getCategoryColor(
+                              tx.category,
+                            );
 
-                                return InkWell(
-                                  onTap: () => _openDetail(tx),
+                            return InkWell(
+                              onTap: () => _openDetail(tx),
+                              borderRadius: BorderRadius.circular(16),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.surface,
                                   borderRadius: BorderRadius.circular(16),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                    decoration: BoxDecoration(
-                                      color: theme.colorScheme.surface,
-                                      borderRadius: BorderRadius.circular(16),
-                                      border: Border.all(
-                                        color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
+                                  border: Border.all(
+                                    color: theme.colorScheme.outlineVariant
+                                        .withValues(alpha: 0.4),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    // Icon Kategori
+                                    Container(
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color: categoryColor.withValues(
+                                          alpha: 0.15,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Icon(
+                                        FormatHelper.getCategoryIcon(
+                                          tx.category,
+                                        ),
+                                        size: 22,
+                                        color: categoryColor,
                                       ),
                                     ),
-                                    child: Row(
+                                    const SizedBox(width: 12),
+
+                                    // Kategori & Catatan/Tanggal
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            tx.category,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            tx.note?.isNotEmpty == true
+                                                ? '${tx.note} • ${FormatHelper.formatDate(tx.date)}'
+                                                : FormatHelper.formatDate(
+                                                    tx.date,
+                                                  ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: theme.colorScheme.onSurface
+                                                  .withValues(alpha: 0.6),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    // Nominal
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
                                       children: [
-                                        // Icon Kategori
-                                        Container(
-                                          padding: const EdgeInsets.all(10),
-                                          decoration: BoxDecoration(
-                                            color: categoryColor.withValues(alpha: 0.15),
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          child: Icon(
-                                            FormatHelper.getCategoryIcon(tx.category),
-                                            size: 22,
-                                            color: categoryColor,
+                                        Text(
+                                          '${isIncome ? '+' : '-'} ${FormatHelper.formatRupiah(tx.amount)}',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: isIncome
+                                                ? Colors.green.shade700
+                                                : Colors.red.shade700,
                                           ),
                                         ),
-                                        const SizedBox(width: 12),
-
-                                        // Kategori & Catatan/Tanggal
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                tx.category,
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 2),
-                                              Text(
-                                                tx.note?.isNotEmpty == true
-                                                    ? '${tx.note} • ${FormatHelper.formatDate(tx.date)}'
-                                                    : FormatHelper.formatDate(tx.date),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                                                ),
-                                              ),
-                                            ],
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          isIncome
+                                              ? 'Pemasukan'
+                                              : 'Pengeluaran',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w500,
+                                            color: isIncome
+                                                ? Colors.green.shade600
+                                                : Colors.red.shade600,
                                           ),
-                                        ),
-
-                                        // Nominal
-                                        Column(
-                                          crossAxisAlignment: CrossAxisAlignment.end,
-                                          children: [
-                                            Text(
-                                              '${isIncome ? '+' : '-'} ${FormatHelper.formatRupiah(tx.amount)}',
-                                              style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                                color: isIncome ? Colors.green.shade700 : Colors.red.shade700,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 2),
-                                            Text(
-                                              isIncome ? 'Pemasukan' : 'Pengeluaran',
-                                              style: TextStyle(
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.w500,
-                                                color: isIncome ? Colors.green.shade600 : Colors.red.shade600,
-                                              ),
-                                            ),
-                                          ],
                                         ),
                                       ],
                                     ),
-                                  ),
-                                );
-                              },
-                            ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                 ),
               ],
             ),

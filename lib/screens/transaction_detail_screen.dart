@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../models/transaction.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/budget_provider.dart';
@@ -87,15 +88,40 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
     final txProvider = context.read<TransactionProvider>();
     final budgetProvider = context.read<BudgetProvider>();
 
-    await txProvider.deleteTransaction(_transaction.id!, widget.userId);
+    final success = await txProvider.deleteTransaction(
+      _transaction.id!,
+      widget.userId,
+    );
+
+    if (!success) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            txProvider.errorMessage ?? 'Transaksi gagal dihapus. Coba lagi.',
+          ),
+          backgroundColor: Colors.red.shade700,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+      return;
+    }
+
     await budgetProvider.loadCurrentMonthBudgets(widget.userId);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Transaksi "${_transaction.category}" berhasil dihapus'),
+          content: Text(
+            'Transaksi "${_transaction.category}" berhasil dihapus',
+          ),
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
       Navigator.pop(context, true);
@@ -136,10 +162,14 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+                color: theme.colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.35,
+                ),
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+                  color: theme.colorScheme.outlineVariant.withValues(
+                    alpha: 0.5,
+                  ),
                 ),
               ),
               child: Column(
@@ -171,7 +201,10 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
 
                   // Badge Tipe
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: isIncome
                           ? Colors.green.withValues(alpha: 0.15)
@@ -183,7 +216,9 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: isIncome ? Colors.green.shade700 : Colors.red.shade700,
+                        color: isIncome
+                            ? Colors.green.shade700
+                            : Colors.red.shade700,
                       ),
                     ),
                   ),
@@ -195,7 +230,9 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
-                      color: isIncome ? Colors.green.shade700 : Colors.red.shade700,
+                      color: isIncome
+                          ? Colors.green.shade700
+                          : Colors.red.shade700,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -212,7 +249,9 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                 color: theme.colorScheme.surface,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
+                  color: theme.colorScheme.outlineVariant.withValues(
+                    alpha: 0.4,
+                  ),
                 ),
               ),
               child: Column(
@@ -220,10 +259,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                 children: [
                   const Text(
                     'Informasi Transaksi',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
 
@@ -277,8 +313,14 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: _handleDelete,
-                    icon: const Icon(Icons.delete_outline_rounded, color: Colors.red),
-                    label: const Text('Hapus', style: TextStyle(color: Colors.red)),
+                    icon: const Icon(
+                      Icons.delete_outline_rounded,
+                      color: Colors.red,
+                    ),
+                    label: const Text(
+                      'Hapus',
+                      style: TextStyle(color: Colors.red),
+                    ),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       side: BorderSide(color: Colors.red.shade300),
@@ -351,4 +393,3 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
     );
   }
 }
-

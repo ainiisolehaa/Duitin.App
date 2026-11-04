@@ -1,4 +1,5 @@
 import 'package:sqflite/sqflite.dart';
+
 import '../database/database_helper.dart';
 import '../models/user.dart';
 
@@ -7,7 +8,7 @@ class UserRepository {
   final DatabaseHelper _dbHelper;
 
   UserRepository({DatabaseHelper? dbHelper})
-      : _dbHelper = dbHelper ?? DatabaseHelper.instance;
+    : _dbHelper = dbHelper ?? DatabaseHelper.instance;
 
   // ──────────── CREATE ────────────
 
@@ -77,11 +78,7 @@ class UserRepository {
   /// Mengembalikan jumlah baris yang dihapus.
   Future<int> deleteUser(int id) async {
     final db = await _dbHelper.database;
-    return await db.delete(
-      'users',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete('users', where: 'id = ?', whereArgs: [id]);
   }
 
   /// Hitung jumlah user yang terdaftar.
@@ -91,4 +88,3 @@ class UserRepository {
     return Sqflite.firstIntValue(result) ?? 0;
   }
 }
-

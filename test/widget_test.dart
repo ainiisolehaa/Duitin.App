@@ -5,8 +5,9 @@ import 'package:duitin/screens/splash_screen.dart';
 import 'package:duitin/screens/login_screen.dart';
 
 void main() {
-  testWidgets('DuitinApp renders SplashScreen and navigates to LoginScreen',
-      (WidgetTester tester) async {
+  testWidgets('DuitinApp renders SplashScreen and navigates to LoginScreen', (
+    WidgetTester tester,
+  ) async {
     SharedPreferences.setMockInitialValues({});
 
     await tester.pumpWidget(const DuitinApp());

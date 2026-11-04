@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+
 import '../models/transaction.dart';
 import '../providers/transaction_provider.dart';
 import '../utils/format_helper.dart';
@@ -87,7 +88,9 @@ class _AddTransactionBottomSheetState extends State<AddTransactionBottomSheet> {
   Future<void> _saveTransaction() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final amountText = _amountController.text.replaceAll('.', '').replaceAll(',', '.');
+    final amountText = _amountController.text
+        .replaceAll('.', '')
+        .replaceAll(',', '.');
     final amount = double.tryParse(amountText);
     if (amount == null || amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -103,7 +106,9 @@ class _AddTransactionBottomSheetState extends State<AddTransactionBottomSheet> {
       amount: amount,
       type: _type,
       date: _selectedDate,
-      note: _noteController.text.trim().isEmpty ? null : _noteController.text.trim(),
+      note: _noteController.text.trim().isEmpty
+          ? null
+          : _noteController.text.trim(),
     );
 
     if (mounted) {
@@ -114,7 +119,9 @@ class _AddTransactionBottomSheetState extends State<AddTransactionBottomSheet> {
             '${_type == TransactionType.income ? "Pemasukan" : "Pengeluaran"} berhasil dicatat!',
           ),
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
       );
     }
@@ -198,12 +205,17 @@ class _AddTransactionBottomSheetState extends State<AddTransactionBottomSheet> {
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 autofocus: true,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
                 decoration: InputDecoration(
                   labelText: 'Nominal (Rp)',
                   prefixText: 'Rp ',
                   hintText: '0',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
                 validator: (val) {
                   if (val == null || val.trim().isEmpty) {
@@ -237,8 +249,12 @@ class _AddTransactionBottomSheetState extends State<AddTransactionBottomSheet> {
                     selected: isSelected,
                     selectedColor: color,
                     labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : theme.colorScheme.onSurface,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: isSelected
+                          ? Colors.white
+                          : theme.colorScheme.onSurface,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                     ),
                     onSelected: (_) {
                       setState(() {
@@ -278,7 +294,9 @@ class _AddTransactionBottomSheetState extends State<AddTransactionBottomSheet> {
                   labelText: 'Catatan (Opsional)',
                   hintText: 'Contoh: Makan siang bareng teman',
                   prefixIcon: const Icon(Icons.note_alt_outlined),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -323,4 +341,3 @@ class _AddTransactionBottomSheetState extends State<AddTransactionBottomSheet> {
     );
   }
 }
-

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+
 import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
 import 'login_screen.dart';
@@ -29,7 +30,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: const Row(
             children: [
               Icon(Icons.edit_rounded, size: 22),
@@ -102,7 +105,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             content: Text('Nama berhasil diubah menjadi "$newName"'),
             backgroundColor: Colors.teal,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         );
       } else {
@@ -111,7 +116,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             content: Text(auth.errorMessage ?? 'Gagal memperbarui nama.'),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
           ),
         );
       }
@@ -127,7 +134,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (ctx) {
         final theme = Theme.of(ctx);
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: const Row(
             children: [
               Icon(Icons.palette_outlined, size: 22),
@@ -242,7 +251,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Text('Konfirmasi Logout'),
           ],
         ),
-        content: Text('Apakah $userName yakin ingin keluar dari aplikasi Duitin?'),
+        content: Text(
+          'Apakah $userName yakin ingin keluar dari aplikasi Duitin?',
+        ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         actions: [
           TextButton(
@@ -283,17 +294,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        title: const Text('Profil & Pengaturan'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('Profil & Pengaturan'), elevation: 0),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         children: [
           // ──────────── 1. KARTU PROFIL PENGGUNA ────────────
           Card(
             elevation: 1,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -302,7 +312,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     radius: 36,
                     backgroundColor: theme.colorScheme.primaryContainer,
                     child: Text(
-                      user?.name.isNotEmpty == true ? user!.name[0].toUpperCase() : 'U',
+                      user?.name.isNotEmpty == true
+                          ? user!.name[0].toUpperCase()
+                          : 'U',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
@@ -386,10 +398,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ListTile(
                   leading: CircleAvatar(
                     backgroundColor: theme.colorScheme.primaryContainer,
-                    child: Icon(themeProvider.themeIcon, color: theme.colorScheme.primary),
+                    child: Icon(
+                      themeProvider.themeIcon,
+                      color: theme.colorScheme.primary,
+                    ),
                   ),
                   title: const Text('Tema Aplikasi'),
-                  subtitle: Text('${themeProvider.themeModeName} — ${themeProvider.themeModeDescription}'),
+                  subtitle: Text(
+                    '${themeProvider.themeModeName} — ${themeProvider.themeModeDescription}',
+                  ),
                   trailing: const Icon(Icons.chevron_right_rounded),
                   onTap: _showThemeSelectionDialog,
                 ),
@@ -486,12 +503,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
             color: theme.colorScheme.errorContainer.withValues(alpha: 0.15),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
-              side: BorderSide(color: theme.colorScheme.error.withValues(alpha: 0.3)),
+              side: BorderSide(
+                color: theme.colorScheme.error.withValues(alpha: 0.3),
+              ),
             ),
             child: ListTile(
               leading: CircleAvatar(
                 backgroundColor: theme.colorScheme.errorContainer,
-                child: Icon(Icons.logout_rounded, color: theme.colorScheme.error),
+                child: Icon(
+                  Icons.logout_rounded,
+                  color: theme.colorScheme.error,
+                ),
               ),
               title: Text(
                 'Keluar dari Akun',
@@ -502,7 +524,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               subtitle: Text(
                 'Hapus sesi aktif dari perangkat ini (${user?.email ?? ''})',
-                style: TextStyle(fontSize: 12, color: theme.colorScheme.error.withValues(alpha: 0.8)),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: theme.colorScheme.error.withValues(alpha: 0.8),
+                ),
               ),
               onTap: _handleLogout,
             ),
@@ -544,7 +569,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(title, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-        Text(desc, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+        Text(
+          desc,
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+        ),
       ],
     );
   }
