@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -16,9 +18,10 @@ void main() async {
   await initializeDateFormatting('id_ID', null);
 
   // Siapkan akun & data demo saat pertama kali aplikasi dijalankan.
-  // Dibungkus try/catch agar kegagalan database tidak membuat app crash.
+  // Dibatasi dengan timeout + try/catch agar kegagalan/lambatnya database
+  // tidak pernah membuat aplikasi berhenti di layar hitam sebelum runApp().
   try {
-    await DataSeeder.seedStudentData();
+    await DataSeeder.seedStudentData().timeout(const Duration(seconds: 8));
   } catch (e) {
     debugPrint('Gagal menyiapkan data demo: $e');
   }
@@ -45,6 +48,7 @@ class DuitinApp extends StatelessWidget {
           return MaterialApp(
             title: 'Duitin',
             debugShowCheckedModeBanner: false,
+            scrollBehavior: const AppScrollBehavior(),
             themeMode: themeProvider.themeMode,
             theme: ThemeData(
               colorScheme: ColorScheme.fromSeed(
@@ -78,4 +82,19 @@ class DuitinApp extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Scroll behavior yang mengizinkan gesture drag pada layar sentuh maupun pointer mouse/trackpad.
+/// Memastikan komponen scroll horizontal (seperti chip kategori) dapat digeser dengan mulus
+/// di semua perangkat (emulator, HP fisik, maupun desktop).
+class AppScrollBehavior extends MaterialScrollBehavior {
+  const AppScrollBehavior();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+    PointerDeviceKind.trackpad,
+    PointerDeviceKind.stylus,
+  };
 }

@@ -156,10 +156,14 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  /// Update profil pengguna (nama dan/atau mata uang).
+  /// Update profil pengguna (nama, mata uang, dan/atau avatar).
   ///
   /// Parameter yang tidak diisi akan mempertahankan nilai lama.
-  Future<bool> updateProfile({String? name, String? currency}) async {
+  Future<bool> updateProfile({
+    String? name,
+    String? currency,
+    String? avatar,
+  }) async {
     if (_user == null) {
       _errorMessage = 'Tidak ada pengguna yang sedang login.';
       notifyListeners();
@@ -189,7 +193,7 @@ class AuthProvider extends ChangeNotifier {
       return false;
     }
 
-    if (trimmedName == null && trimmedCurrency == null) {
+    if (trimmedName == null && trimmedCurrency == null && avatar == null) {
       _errorMessage = 'Tidak ada perubahan yang disimpan.';
       notifyListeners();
       return false;
@@ -202,6 +206,7 @@ class AuthProvider extends ChangeNotifier {
       final updatedUser = _user!.copyWith(
         name: trimmedName,
         currency: trimmedCurrency,
+        avatar: avatar ?? _user!.avatar,
         updatedAt: DateTime.now(),
       );
       final success = await _repository.updateUser(updatedUser);

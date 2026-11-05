@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/budget_provider.dart';
 import '../utils/format_helper.dart';
+import '../utils/category_constants.dart';
 
 /// Dialog untuk memasang atau memperbarui batas anggaran per kategori.
 class AddBudgetDialog extends StatefulWidget {
@@ -43,16 +44,8 @@ class _AddBudgetDialogState extends State<AddBudgetDialog> {
   late final TextEditingController _amountController;
   late String _selectedCategory;
 
-  final List<String> _categories = [
-    'Makanan',
-    'Transportasi',
-    'Belanja',
-    'Hiburan',
-    'Pendidikan',
-    'Kesehatan',
-    'Tagihan',
-    'Lainnya',
-  ];
+  // Anggaran hanya untuk kategori pengeluaran
+  final List<String> _categories = CategoryConstants.expenseCategories;
 
   @override
   void initState() {
@@ -60,7 +53,7 @@ class _AddBudgetDialogState extends State<AddBudgetDialog> {
     _selectedCategory = widget.initialCategory ?? _categories.first;
     _amountController = TextEditingController(
       text: widget.initialAmount != null
-          ? widget.initialAmount!.toStringAsFixed(0)
+          ? FormatHelper.formatThousand(widget.initialAmount!)
           : '',
     );
   }
@@ -74,8 +67,8 @@ class _AddBudgetDialogState extends State<AddBudgetDialog> {
   Future<void> _saveBudget() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final amount = double.tryParse(_amountController.text.trim());
-    if (amount == null || amount <= 0) {
+    final amount = FormatHelper.parseThousand(_amountController.text);
+    if (amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Nominal anggaran harus lebih dari 0')),
       );
@@ -207,12 +200,15 @@ class _AddBudgetDialogState extends State<AddBudgetDialog> {
             TextFormField(
               controller: _amountController,
               keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                ThousandsSeparatorInputFormatter(),
+              ],
               autofocus: true,
               decoration: InputDecoration(
                 labelText: 'Batas Anggaran (Rp)',
                 prefixText: 'Rp ',
-                hintText: '500000',
+                hintText: '500.000',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -220,6 +216,10 @@ class _AddBudgetDialogState extends State<AddBudgetDialog> {
               validator: (val) {
                 if (val == null || val.trim().isEmpty) {
                   return 'Nominal tidak boleh kosong';
+                }
+                final numVal = FormatHelper.parseThousand(val);
+                if (numVal <= 0) {
+                  return 'Nominal harus lebih dari 0';
                 }
                 return null;
               },

@@ -6,6 +6,8 @@ import '../models/transaction.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/budget_provider.dart';
 import '../utils/format_helper.dart';
+import '../utils/category_constants.dart';
+import '../widgets/category_chip_item.dart';
 
 /// Halaman Form Tambah dan Edit Transaksi.
 ///
@@ -39,25 +41,9 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   String? _selectedPresetCategory;
   bool _isCustomCategory = false;
 
-  final List<String> _expenseCategories = [
-    'Makanan',
-    'Transportasi',
-    'Belanja',
-    'Tagihan',
-    'Hiburan',
-    'Pendidikan',
-    'Kesehatan',
-    'Lainnya',
-  ];
+  final List<String> _expenseCategories = CategoryConstants.expenseCategories;
 
-  final List<String> _incomeCategories = [
-    'Gaji',
-    'Bonus',
-    'Investasi',
-    'Hadiah',
-    'Penjualan',
-    'Lainnya',
-  ];
+  final List<String> _incomeCategories = CategoryConstants.incomeCategories;
 
   @override
   void initState() {
@@ -68,7 +54,7 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
       // Mode Edit
       _type = tx.type;
       _amountController = TextEditingController(
-        text: tx.amount.toStringAsFixed(0),
+        text: FormatHelper.formatThousand(tx.amount),
       );
       _noteController = TextEditingController(text: tx.note ?? '');
       _selectedDate = tx.date;
@@ -164,9 +150,8 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
   Future<void> _saveTransaction() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final amountText = _amountController.text.trim();
-    final amount = double.tryParse(amountText);
-    if (amount == null || amount <= 0) {
+    final amount = FormatHelper.parseThousand(_amountController.text);
+    if (amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Nominal transaksi harus lebih dari 0')),
       );
@@ -309,7 +294,10 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                 TextFormField(
                   controller: _amountController,
                   keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    ThousandsSeparatorInputFormatter(),
+                  ],
                   autofocus: !widget.isEditing,
                   style: const TextStyle(
                     fontSize: 22,
@@ -328,14 +316,13 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    helperText: 'Masukkan jumlah uang tanpa titik atau koma',
                   ),
                   validator: (val) {
                     if (val == null || val.trim().isEmpty) {
                       return 'Nominal wajib diisi';
                     }
-                    final numVal = double.tryParse(val.trim());
-                    if (numVal == null || numVal <= 0) {
+                    final numVal = FormatHelper.parseThousand(val);
+                    if (numVal <= 0) {
                       return 'Nominal harus lebih besar dari 0';
                     }
                     return null;
@@ -359,26 +346,11 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
                   children: categories.map((cat) {
                     final isSelected =
                         _selectedPresetCategory == cat && !_isCustomCategory;
-                    final color = FormatHelper.getCategoryColor(cat);
 
-                    return ChoiceChip(
-                      label: Text(cat),
-                      avatar: Icon(
-                        FormatHelper.getCategoryIcon(cat),
-                        size: 16,
-                        color: isSelected ? Colors.white : color,
-                      ),
-                      selected: isSelected,
-                      selectedColor: color,
-                      labelStyle: TextStyle(
-                        color: isSelected
-                            ? Colors.white
-                            : theme.colorScheme.onSurface,
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                      ),
-                      onSelected: (_) {
+                    return CategoryChipItem(
+                      category: cat,
+                      isSelected: isSelected,
+                      onTap: () {
                         setState(() {
                           _selectedPresetCategory = cat;
                           if (cat == 'Lainnya') {

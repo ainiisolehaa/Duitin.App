@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 
 import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
+import '../widgets/user_avatar.dart';
+import '../widgets/avatar_picker_sheet.dart';
 import 'login_screen.dart';
 
 /// Halaman Profil dan Pengaturan Aplikasi Duitin.
@@ -401,19 +403,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  CircleAvatar(
-                    radius: 36,
-                    backgroundColor: theme.colorScheme.primaryContainer,
-                    child: Text(
-                      user?.name.isNotEmpty == true
-                          ? user!.name[0].toUpperCase()
-                          : 'U',
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onPrimaryContainer,
-                      ),
-                    ),
+                  UserAvatar(
+                    user: user,
+                    radius: 44,
+                    showEditBadge: true,
+                    onTap: () => AvatarPickerSheet.show(context, user: user),
                   ),
                   const SizedBox(height: 12),
                   Text(

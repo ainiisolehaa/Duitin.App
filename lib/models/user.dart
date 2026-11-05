@@ -9,6 +9,7 @@ class User {
   final String? email;
   final String? password; // hash sederhana untuk auth lokal
   final String currency; // default 'IDR'
+  final String? avatar; // avatar preset key / identifier
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -18,6 +19,7 @@ class User {
     this.email,
     this.password,
     this.currency = 'IDR',
+    this.avatar,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) : createdAt = createdAt ?? DateTime.now(),
@@ -31,6 +33,7 @@ class User {
       email: map['email'] as String?,
       password: map['password'] as String?,
       currency: map['currency'] as String? ?? 'IDR',
+      avatar: map['avatar'] as String?,
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['created_at'] as int),
       updatedAt: DateTime.fromMillisecondsSinceEpoch(map['updated_at'] as int),
     );
@@ -44,6 +47,7 @@ class User {
       'email': email,
       'password': password,
       'currency': currency,
+      'avatar': avatar,
       'created_at': createdAt.millisecondsSinceEpoch,
       'updated_at': updatedAt.millisecondsSinceEpoch,
     };
@@ -56,6 +60,7 @@ class User {
     String? email,
     String? password,
     String? currency,
+    String? avatar,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -65,6 +70,7 @@ class User {
       email: email ?? this.email,
       password: password ?? this.password,
       currency: currency ?? this.currency,
+      avatar: avatar ?? this.avatar,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? DateTime.now(),
     );
@@ -72,7 +78,7 @@ class User {
 
   @override
   String toString() {
-    return 'User(id: $id, name: $name, email: $email, currency: $currency)';
+    return 'User(id: $id, name: $name, email: $email, currency: $currency, avatar: $avatar)';
   }
 
   @override

@@ -23,7 +23,10 @@ void main() {
 
     // 3. Karena belum login, otomatis berpindah ke LoginScreen
     expect(find.byType(LoginScreen), findsOneWidget);
-    expect(find.text('Selamat Datang!'), findsOneWidget);
-    expect(find.text('Masuk ke akun Duitin kamu'), findsOneWidget);
+    expect(find.text('Duitin'), findsOneWidget);
+    expect(
+      find.text('Masuk untuk mengelola keuangan harianmu'),
+      findsOneWidget,
+    );
   });
 }

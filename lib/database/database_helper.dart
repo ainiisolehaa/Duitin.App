@@ -9,7 +9,7 @@ import 'package:path/path.dart';
 /// Versi 2: menambahkan kolom `password` dan `UNIQUE(email)` di tabel users.
 class DatabaseHelper {
   static const String _databaseName = 'duitin.db';
-  static const int _databaseVersion = 2;
+  static const int _databaseVersion = 3;
 
   // Singleton pattern
   DatabaseHelper._internal();
@@ -43,7 +43,7 @@ class DatabaseHelper {
 
   /// Buat semua tabel saat database pertama kali dibuat.
   Future<void> _onCreate(Database db, int version) async {
-    // ── Tabel Users (v2: dengan password & unique email) ──
+    // ── Tabel Users (v3: dengan password, unique email, avatar) ──
     await db.execute('''
       CREATE TABLE users (
         id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -51,6 +51,7 @@ class DatabaseHelper {
         email       TEXT    UNIQUE,
         password    TEXT,
         currency    TEXT    NOT NULL DEFAULT 'IDR',
+        avatar      TEXT,
         created_at  INTEGER NOT NULL,
         updated_at  INTEGER NOT NULL
       )
@@ -115,6 +116,10 @@ class DatabaseHelper {
       await db.execute(
         'CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users (email)',
       );
+    }
+    if (oldVersion < 3) {
+      // v2 → v3: tambah kolom avatar di tabel users
+      await db.execute('ALTER TABLE users ADD COLUMN avatar TEXT');
     }
   }
 

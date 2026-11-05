@@ -10,6 +10,8 @@ import '../widgets/balance_card.dart';
 import '../widgets/budget_summary_card.dart';
 import '../widgets/recent_transactions_list.dart';
 import '../widgets/add_budget_dialog.dart';
+import '../widgets/user_avatar.dart';
+import '../widgets/set_initial_balance_dialog.dart';
 import 'transaction_form_screen.dart';
 import 'transaction_detail_screen.dart';
 
@@ -118,12 +120,17 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final userId = context.watch<AuthProvider>().userId ?? 0;
+    final auth = context.watch<AuthProvider>();
+    final user = auth.user;
+    final userId = auth.userId ?? 0;
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       body: Consumer2<TransactionProvider, BudgetProvider>(
         builder: (context, txProvider, budgetProvider, child) {
+          final isNewUser =
+              txProvider.transactions.isEmpty && txProvider.balance == 0;
+
           return RefreshIndicator(
             onRefresh: _loadData,
             color: theme.colorScheme.primary,
@@ -133,11 +140,160 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // ── Header Sapaan Pengguna (Halo, [Nama]!) ──
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4, bottom: 18),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      'Halo, ${user?.name ?? 'Pengguna'}! 👋',
+                                      style: const TextStyle(
+                                        fontSize: 21,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: -0.4,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                'Kelola & pantau keuanganmu hari ini',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.6,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        GestureDetector(
+                          onTap: () => widget.onNavigateTab?.call(4),
+                          child: Tooltip(
+                            message: 'Buka Profil & Pengaturan',
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: theme.colorScheme.primary.withValues(
+                                    alpha: 0.25,
+                                  ),
+                                  width: 2,
+                                ),
+                              ),
+                              child: UserAvatar(user: user, radius: 22),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // ── Banner Selamat Datang & Isi Saldo untuk Pengguna Baru ──
+                  if (isNewUser)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 18),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            theme.colorScheme.primaryContainer.withValues(
+                              alpha: 0.65,
+                            ),
+                            theme.colorScheme.surfaceContainerHighest
+                                .withValues(alpha: 0.35),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.25,
+                          ),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.savings_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Baru pertama kali di Duitin?',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'Atur saldo awal dompetmu agar pencatatan keuangan akurat.',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: theme.colorScheme.onSurface
+                                        .withValues(alpha: 0.75),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          FilledButton.tonal(
+                            onPressed: () => SetInitialBalanceDialog.show(
+                              context,
+                              userId: userId,
+                            ),
+                            style: FilledButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              visualDensity: VisualDensity.compact,
+                            ),
+                            child: const Text(
+                              'Isi Saldo',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
                   // ── 1. Kartu Total Saldo, Pemasukan, & Pengeluaran ──
                   BalanceCard(
                     balance: txProvider.balance,
                     totalIncome: txProvider.totalIncome,
                     totalExpense: txProvider.totalExpense,
+                    onTopUp: () =>
+                        SetInitialBalanceDialog.show(context, userId: userId),
                   ),
                   const SizedBox(height: 22),
 

@@ -15,7 +15,7 @@ import '../database/database_helper.dart';
 /// anak kost/kuliah (kost, makan, bensin, nugas, fotokopi, kuota),
 /// serta anggaran bulanan dengan berbagai status (Aman & Waspada).
 class DataSeeder {
-  static const String studentName = 'Dimas Pratama';
+  static const String studentName = 'AiniiSolehaa';
   static const String studentEmail = 'ainiisolehaa4@gmail.com';
   static const String studentPassword = 'password123';
 
@@ -83,6 +83,18 @@ class DataSeeder {
 
     if (existingUsers.isNotEmpty) {
       userId = existingUsers.first['id'] as int;
+
+      // Pastikan password akun demo selalu tersinkronisasi dengan studentPassword
+      final targetHash = _hashPassword(studentPassword);
+      final currentHash = existingUsers.first['password'] as String?;
+      if (currentHash != targetHash) {
+        await db.update(
+          'users',
+          {'password': targetHash, 'updated_at': now.millisecondsSinceEpoch},
+          where: 'id = ?',
+          whereArgs: [userId],
+        );
+      }
 
       if (forceReset) {
         await db.delete(
