@@ -515,29 +515,19 @@ class _BudgetScreenState extends State<BudgetScreen> {
 
                   // ── 4. Rincian Batas Anggaran per Kategori ──
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.category_rounded,
-                            size: 18,
-                            color: theme.colorScheme.primary,
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            'Pos Anggaran Kategori',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
+                      Icon(
+                        Icons.category_rounded,
+                        size: 18,
+                        color: theme.colorScheme.primary,
                       ),
-                      TextButton.icon(
-                        onPressed: () => _openAddBudget(),
-                        icon: const Icon(Icons.add_rounded, size: 18),
-                        label: const Text('Tambah Pos'),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Pos Anggaran Kategori',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
